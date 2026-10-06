@@ -1,0 +1,59 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>3주차 박스오피스 시각화 코랩</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">Google Colab에서 열려면 아래 [원본 내려받기] 후 colab.research.google.com → 업로드</p>
+<section class="nbmd"><h1>Matplotlib · Seaborn으로 7월 박스오피스 TOP10 시각화 (Google Colab)</h1>
+<p><strong>목표</strong>: 엑셀 차트와 하는 일은 같지만(막대그래프), 코드로 그리는 방식입니다. 데이터가 바뀌어도 코드만 다시 실행하면 그래프가 자동 갱신됩니다.</p>
+<h2>실습 흐름</h2>
+<ol>
+<li>한글 폰트 설치</li>
+<li>데이터 입력 + 그래프 그리기 + 저장</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>에러가 나면 셀을 하나씩 다시 실행하지 말고, 메뉴에서 "런타임 → 모두 실행(Run all)"을 눌러 처음부터 다시 실행하세요.</strong>
+(중간 셀만 다시 실행하면 이전 실행 결과가 남아있어 오류 원인 파악이 더 어려워집니다.)</p>
+</blockquote>
+<p><strong>로컬 버전과 달라진 점</strong>: 로컬 스크립트에서는 컴퓨터마다 한글 폰트 경로가 달라서 글자 하나하나에 <code>fontproperties=kfont</code>를 직접 지정했습니다. 코랩은 모두가 똑같은 환경이라 <code>plt.rc("font", family="NanumGothic")</code> 한 줄이면 모든 글자에 자동으로 적용되어 코드가 훨씬 간단해집니다.</p></section>
+<section class="nbmd"><h2>셀 1. 한글 폰트 설치</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># 코랩(리눅스) 환경에는 한글 폰트가 기본으로 없어서 나눔고딕을 설치합니다.</span>
+<span class="err">!</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">qq</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">fonts</span><span class="o">-</span><span class="n">nanum</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.font_manager</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fm</span>
+
+<span class="n">font_path</span> <span class="o">=</span> <span class="s2">"/usr/share/fonts/truetype/nanum/NanumGothic.ttf"</span>
+<span class="n">fm</span><span class="o">.</span><span class="n">fontManager</span><span class="o">.</span><span class="n">addfont</span><span class="p">(</span><span class="n">font_path</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s2">"font"</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">"NanumGothic"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">"axes.unicode_minus"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># 마이너스(-) 기호 깨짐 방지</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"폰트 준비 완료. (그래프 글자가 네모(ㅁ)로 깨지면 '런타임 &gt; 런타임 다시 시작' 후 전체 재실행)"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>셀 2. 데이터 입력 + 시각화</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="c1"># 1) 7월 실습에서 뽑았던 TOP10 데이터를 그대로 사용</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"호프"</span><span class="p">,</span> <span class="s2">"스파이더맨: 브랜드 뉴 데이"</span><span class="p">,</span> <span class="s2">"토이 스토리 5"</span><span class="p">,</span> <span class="s2">"눈동자"</span><span class="p">,</span> <span class="s2">"모아나"</span><span class="p">,</span>
+          <span class="s2">"미니언즈 &amp; 몬스터즈"</span><span class="p">,</span> <span class="s2">"다윗"</span><span class="p">,</span> <span class="s2">"군체"</span><span class="p">,</span> <span class="s2">"마티 슈프림"</span><span class="p">,</span> <span class="s2">"와일드 씽"</span><span class="p">]</span>
+<span class="n">audiences</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3855696</span><span class="p">,</span> <span class="mi">1660405</span><span class="p">,</span> <span class="mi">1190688</span><span class="p">,</span> <span class="mi">1149351</span><span class="p">,</span> <span class="mi">973831</span><span class="p">,</span>
+             <span class="mi">664900</span><span class="p">,</span> <span class="mi">231811</span><span class="p">,</span> <span class="mi">207523</span><span class="p">,</span> <span class="mi">123648</span><span class="p">,</span> <span class="mi">87028</span><span class="p">]</span>
+
+<span class="c1"># 2) Seaborn 스타일 적용 (배경, 격자선 등 디자인)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">"whitegrid"</span><span class="p">)</span>
+
+<span class="c1"># 3) 그래프 그리기</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">titles</span><span class="p">,</span> <span class="n">audiences</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Blues_r"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">titles</span><span class="p">)))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>  <span class="c1"># 1위가 맨 위로 오도록 뒤집기</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"2026년 7월 박스오피스 TOP10 (누적 관객수)"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"누적 관객수 (명)"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">audiences</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="mi">30000</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">"july_boxoffice_chart.png"</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"저장 완료: july_boxoffice_chart.png (왼쪽 폴더 아이콘에서 다운로드 가능)"</span><span class="p">)</span>
+</pre></div>
+</section></main></body></html>

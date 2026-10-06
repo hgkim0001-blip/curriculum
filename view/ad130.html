@@ -1,0 +1,205 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>애프터 이펙트 × Claude 무료 연결 가이드</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><h1>애프터 이펙트 × Claude 무료 연결 가이드 (AE MCP)</h1>
+<p>2026-09-29 · 김사부</p>
+<h2>개요</h2>
+<p>오픈소스 After Effects MCP 서버를 쓰면 추가 비용 없이 Claude Desktop에서 자연어로 에펙을 직접 조작할 수 있다. 힉스필드 같은 유료 플랫폼을 거칠 필요가 없고, 기존 Claude 구독만 있으면 된다.</p>
+<p>이 문서는 <a href="https://github.com/a-y-ibrahim/after-effects-mcp">a-y-ibrahim/after-effects-mcp</a> (v1.13.0, 47개 도구) 기준이며, Windows 환경에서 실제로 연결에 성공한 과정을 화면과 함께 정리했다. 이 버전은 UI 언어와 무관하게 동작해 한글판 에펙에서도 안정적이고, 렌더한 프레임을 Claude가 직접 보고 수정하는 기능이 있다.</p>
+<p>연결 구조는 다음 순서로 명령이 전달된다.</p>
+<ol>
+<li>Claude Desktop에 자연어로 요청</li>
+<li>내 PC의 MCP 서버(<code>build\index.js</code>)가 명령을 ExtendScript로 변환</li>
+<li>명령/결과 JSON 파일을 통해 에펙 안의 브리지 패널(<code>mcp-bridge-auto.jsx</code>)과 주고받음</li>
+<li>브리지 패널이 에펙에서 스크립트를 실행하고 결과를 돌려줌</li>
+</ol>
+<p>따라서 Claude Desktop, MCP 서버, 에펙 브리지 패널 세 가지가 모두 같은 PC에서 동시에 켜져 있어야 한다. 웹 claude.ai에서는 동작하지 않는다.</p>
+<h2>준비물</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>운영체제</td>
+<td>Windows 또는 macOS</td>
+<td>에펙이 설치된 PC</td>
+</tr>
+<tr>
+<td>Adobe After Effects</td>
+<td>실행 가능한 버전</td>
+<td>버전별 주의사항은 3단계 참고</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>LTS 이상 (실습 환경: v24.20.0)</td>
+<td><a href="https://nodejs.org">nodejs.org</a></td>
+</tr>
+<tr>
+<td>Claude Desktop 앱</td>
+<td>로그인된 상태</td>
+<td>웹 버전 불가</td>
+</tr>
+<tr>
+<td>텍스트 편집기</td>
+<td>VS Code 권장</td>
+<td>JSON 오류를 바로 표시해 줌</td>
+</tr>
+</tbody>
+</table>
+<h2>1단계. GitHub에서 다운로드</h2>
+<p><a href="https://github.com/a-y-ibrahim/after-effects-mcp">github.com/a-y-ibrahim/after-effects-mcp</a>에 접속해 초록색 <strong>Code</strong> 버튼 → <strong>Download ZIP</strong>을 누른다. git이 없어도 된다.</p>
+<p>받은 ZIP은 경로에 한글과 공백이 없는 곳에 압축을 푼다. 실습 환경의 위치는 <code>D:\aemcp\after-effects-mcp-main</code>이다. ZIP으로 받으면 폴더 이름 끝에 <code>-main</code>이 붙는다.</p>
+<h2>2단계. Node.js 확인 및 npm install</h2>
+<p>압축을 푼 폴더를 탐색기로 연다. 이 시점에는 <code>build</code> 폴더가 없는 것이 정상이다.</p>
+<p>탐색기 주소창을 클릭해 내용을 지우고 <code>cmd</code>를 입력하면 그 폴더 위치에서 명령 프롬프트가 열린다. 다른 곳에서 열었다면 <code>cd /d D:\aemcp\after-effects-mcp-main</code>으로 이동한다(다른 드라이브로 이동할 때는 <code>/d</code>가 필요).</p>
+<p><code>node -v</code>를 입력해 버전 번호가 나오면 Node.js가 설치된 것이다. 오류가 나면 nodejs.org에서 LTS를 설치하고 프롬프트를 다시 연다.</p>
+<p>이어서 다음을 입력한다. 설치와 빌드가 자동으로 진행되며 1~2분 걸린다.</p>
+<pre><code>npm install
+</code></pre>
+<p>노란색 <code>warn</code>은 무시해도 되고, 빨간색 <code>ERR!</code>가 나오면 오류 내용을 확인해야 한다. 끝나면 폴더에 <code>build</code>와 <code>node_modules</code>가 생기고, <code>build</code> 안에 <code>index.js</code>가 있어야 한다.</p>
+<h2>3단계. 에펙 브리지 스크립트 설치</h2>
+<p>같은 프롬프트에서 아래를 입력하면 에펙 설정 폴더에 <code>mcp-bridge-auto.jsx</code> 패널이 복사된다.</p>
+<pre><code>npm run install-bridge
+</code></pre>
+<p><code>Bridge script installed successfully!</code>가 나오면 성공이다.</p>
+<p><strong>에펙 버전 주의:</strong> 스크립트는 PC에 설정 폴더가 있는 버전에만 설치된다. 17.0~24.5(2020~2024)만 보이고 실제로는 2025(25.x)나 2026(26.x)을 쓴다면 패널이 안 보일 수 있다.</p>
+<ul>
+<li>해당 버전 에펙을 한 번 실행했다 끄고 <code>npm run install-bridge</code>를 다시 실행한다.</li>
+<li>그래도 안 되면 <code>C:\Users\&lt;사용자&gt;\AppData\Roaming\Adobe\After Effects\24.5\Scripts\ScriptUI Panels\mcp-bridge-auto.jsx</code>를 복사해, 쓰는 버전 폴더의 <code>Scripts\ScriptUI Panels</code>에 붙여넣는다(폴더가 없으면 직접 만든다).</li>
+<li>권한 오류가 나면 명령 프롬프트를 관리자 권한으로 실행해 다시 시도한다.</li>
+</ul>
+<h2>4단계. Claude Desktop 설정 파일 편집</h2>
+<p>Claude Desktop에서 <strong>설정 &gt; 개발자 &gt; 구성 편집</strong>을 누르면 <code>claude_desktop_config.json</code>이 열린다. 여기에 아래 <code>mcpServers</code> 항목을 추가한다. 경로의 <code>\</code>는 반드시 <code>\\</code> 두 개로 쓴다.</p>
+<pre><code class="language-json">&quot;mcpServers&quot;: {
+  &quot;AfterEffectsMCP&quot;: {
+    &quot;command&quot;: &quot;node&quot;,
+    &quot;args&quot;: [&quot;D:\\aemcp\\after-effects-mcp-main\\build\\index.js&quot;]
+  }
+}
+</code></pre>
+<p><strong>가장 흔한 실수: 파일 끝에 그대로 붙여넣기.</strong> 설정 파일에는 보통 <code>preferences</code> 같은 기존 내용이 있다. 그 뒤에 <code>{ "mcpServers": ... }</code>를 통째로 붙이면 중괄호 덩어리가 두 개가 되어 오류가 난다. VS Code에서는 탭 이름 옆에 빨간 숫자로 표시된다.</p>
+<p>올바른 방법은 기존 마지막 항목의 <code>}</code> 뒤에 쉼표를 붙이고, 맨 바깥 <code>}</code> 안쪽에 <code>mcpServers</code>를 넣는 것이다. 파일 끝부분은 이렇게 보여야 한다.</p>
+<pre><code class="language-json">      &quot;epitaxy-auto-mode-denial-count....&quot;: 2
+    }
+  },
+  &quot;mcpServers&quot;: {
+    &quot;AfterEffectsMCP&quot;: {
+      &quot;command&quot;: &quot;node&quot;,
+      &quot;args&quot;: [&quot;D:\\aemcp\\after-effects-mcp-main\\build\\index.js&quot;]
+    }
+  }
+}
+</code></pre>
+<ul>
+<li>먼저 <code>Ctrl+F</code>로 <code>mcpServers</code>를 검색한다. 이미 있으면 새로 만들지 말고 그 안에 <code>"AfterEffectsMCP": {...}</code>만 추가한다(예: Blender MCP와 나란히).</li>
+<li><code>Ctrl+S</code>로 저장하고 빨간 오류 표시가 사라지는지 확인한다.</li>
+<li>Claude Desktop을 작업표시줄 트레이 아이콘까지 완전히 종료한 뒤 다시 실행한다. 창만 닫으면 설정이 반영되지 않는다.</li>
+</ul>
+<h2>5단계. 연결 확인</h2>
+<p>Claude Desktop을 다시 실행한 뒤 <strong>설정 &gt; 개발자</strong>에서 <code>AfterEffectsMCP</code> 옆에 파란색 <strong>실행 중</strong> 표시가 보이면 Claude 쪽 연결은 완료된 것이다.</p>
+<p>'실행 중' 대신 오류가 뜨면 <strong>로그 보기</strong>를 눌러 원인을 확인한다. 대부분은 <code>index.js</code> 경로 오타나 <code>npm install</code> 미완료가 원인이다.</p>
+<h2>6단계. 에펙 설정 및 브리지 패널 열기</h2>
+<p>에펙이 스크립트로 파일을 주고받을 수 있도록 허용하고, 브리지 패널을 켜둔다. 최초 1회만 설정하면 된다.</p>
+<ol>
+<li>에펙 실행 → <strong>편집 &gt; 환경 설정 &gt; 스크립팅 및 표현식</strong> (영문판: Edit &gt; Preferences &gt; Scripting &amp; Expressions)</li>
+<li><strong>"스크립트가 파일을 쓰고 네트워크에 액세스하도록 허용"</strong> 체크 (Allow Scripts to Write Files and Access Network)</li>
+<li>에펙 재시작</li>
+<li><strong>창(Window) 메뉴</strong> 맨 아래에서 <code>mcp-bridge-auto.jsx</code> 클릭</li>
+<li>패널 안의 자동 실행(Auto-run commands) 체크박스가 있으면 켜둔다</li>
+</ol>
+<p>이 패널은 작업하는 동안 계속 열어둔다. 닫으면 Claude의 명령을 받지 못한다. 다른 패널처럼 작업 영역에 도킹해 두면 다음 실행 때도 자동으로 열린다.</p>
+<h2>7단계. 테스트 실행</h2>
+<p>에펙(브리지 패널 열림)과 Claude Desktop을 모두 켜둔 상태에서, Claude Desktop에 새 채팅을 열고 아래 순서대로 입력한다. Claude가 도구 사용 권한을 묻는 창이 뜨면 <strong>허용</strong>을 누른다.</p>
+<table>
+<thead>
+<tr>
+<th>순서</th>
+<th>입력 예시</th>
+<th>기대 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 연결 확인</td>
+<td>After Effects 브리지 확인해줘</td>
+<td>브리지 버전과 <code>versionMatch: true</code> 표시</td>
+</tr>
+<tr>
+<td>2. 프로젝트 정보</td>
+<td>지금 열려 있는 프로젝트의 컴포지션 목록 알려줘</td>
+<td>프로젝트 항목 목록</td>
+</tr>
+<tr>
+<td>3. 컴포지션 생성</td>
+<td>1920x1080, 30fps, 10초짜리 컴포지션 'TEST' 만들어줘</td>
+<td>프로젝트 패널에 새 컴포지션</td>
+</tr>
+<tr>
+<td>4. 텍스트 애니메이션</td>
+<td>가운데에 'HELLO' 텍스트 넣고 1초 동안 페이드인 되게 해줘</td>
+<td>텍스트 레이어 + 불투명도 키프레임 2개</td>
+</tr>
+<tr>
+<td>5. 결과 확인</td>
+<td>TEST 컴포지션 2초 지점 프레임 보여줘</td>
+<td>Claude가 렌더한 프레임 이미지를 보고 설명</td>
+</tr>
+<tr>
+<td>6. 수정</td>
+<td>글자 크기를 두 배로 키우고 노란색으로 바꿔줘</td>
+<td>기존 레이어 속성 변경</td>
+</tr>
+</tbody>
+</table>
+<p>매 명령은 에펙에서 실행 취소 1번으로 되돌릴 수 있게 묶여 실행된다. 결과가 마음에 들지 않으면 <code>Ctrl+Z</code> 후 요청을 더 구체적으로 바꿔 다시 보낸다.</p>
+<p>기본 테스트가 통과하면 실무형 요청도 시도해 볼 수 있다.</p>
+<ul>
+<li>"선택한 텍스트 레이어마다 0.1초씩 시차를 두고 아래에서 올라오게 해줘"</li>
+<li>"하단 자막용 로우어서드 만들어줘. 이름은 홍길동, 직함은 방송 PD"</li>
+<li>"이 컴포지션을 H.264 MP4로 렌더해줘" (백그라운드 렌더)</li>
+</ul>
+<h2>문제 해결</h2>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>npm</code>이 인식되지 않음</td>
+<td>Node.js 미설치 또는 프롬프트를 설치 전에 열었음</td>
+<td>Node.js LTS 설치 후 프롬프트 새로 열기</td>
+</tr>
+<tr>
+<td>창 메뉴에 브리지 패널이 없음</td>
+<td>쓰는 에펙 버전 폴더에 설치 안 됨</td>
+<td>3단계 '에펙 버전 주의'대로 수동 복사</td>
+</tr>
+<tr>
+<td>설정 파일에 빨간 오류 표시</td>
+<td>JSON 문법 오류(덩어리 2개, 쉼표 누락, <code>\</code> 하나만 씀)</td>
+<td>4단계 올바른 예와 비교</td>
+</tr>
+<tr>
+<td>개발자 화면에 서버가 안 보임</td>
+<td>Claude Desktop을 창만 닫음</td>
+<td>트레이 아이콘까지 종료 후 재실행</td>
+</tr>
+<tr>
+<td>Claude가 명령을 보내는데 에펙이 반응 없음</td>
+<td>브리지 패널이 닫히거나 스크립트 허용 설정 꺼짐</td>
+<td>6단계 다시 확인</td>
+</tr>
+<tr>
+<td>권한 오류(EPERM 등)</td>
+<td>에펙 폴더 쓰기 권한 부족</td>
+<td>명령 프롬프트를 관리자 권한으로 실행</td>
+</tr>
+</tbody>
+</table>
+<p>개인이 만든 오픈소스이고 에펙 안에서 스크립트를 실행하므로, 중요한 프로젝트는 테스트 전에 백업해 둔다.</p></main></body></html>

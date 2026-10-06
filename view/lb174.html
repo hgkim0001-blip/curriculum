@@ -1,0 +1,438 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>모션패턴_분석_Paper_Collage</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><h1>Retro Paper Collage — 모션 패턴 분석</h1>
+<ul>
+<li>분석 대상: <code>preview_540p_crf22_higher_quality.mp4</code></li>
+<li>영상 정보: 960×540, 30fps, 25.0초, 749프레임</li>
+<li>분석 방법: ffmpeg 장면 전환 검출, 프레임 간 변화량 측정(스텝 주기·움직임 곡선), 6프레임 간격 콘택트 시트, 전환 구간 프레임 단위 상세 시트</li>
+<li>근거 이미지: <code>분석자료_콜라주/</code> 폴더</li>
+<li><code>sheet_01~05.png</code>: 6프레임 간격 전체 흐름. 칸 번호 × 6 = 원본 프레임 번호</li>
+<li><code>d1~d6_*.png</code>: 도입, 가로 밀기 전환, 구겨진 종이 구멍 전환, 찢어진 종이 올라오기 전환, 텍스트 등장, 엔딩 필기체를 프레임 단위(또는 2프레임 단위)로 본 시트</li>
+<li>함께 보면 좋은 문서: <code>모션패턴_분석_VOX_Typography.md</code> (같은 12fps 스텝이지만 성격이 다른 스타일)</li>
+</ul>
+<hr />
+<h2>1. 핵심 요약 (이 6가지만 지키면 이 스타일이 나온다)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>원칙</th>
+<th>수치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>12fps 스텝 애니메이션</strong>: 모든 움직임이 2-3-2-3 프레임마다 한 번씩 바뀐다. 프레임 차이가 0인 비율이 56%</td>
+<td>Posterize Time <strong>12fps</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>종이 질감 보일(Boil)</strong>: 배경 종이 텍스처가 약 10프레임(3fps)마다 다른 종이로 바뀐다. 정지 구간에도 화면이 살아 있다</td>
+<td>텍스처 3~4장 순환, 3fps</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>찢어진 종이가 모든 것의 경계</strong>: 인물 등장, 장면 전환, 사진 분할이 모두 찢어진 종이 가장자리(흰 섬유)로 처리된다</td>
+<td>찢긴 가장자리 + 흰 종이층</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>아래에서 위로 쌓는다</strong>: 색 블롭 → 인물 컷아웃 → 낙서 선 → 라벨 → 문구 순서로 아래에서 튀어 오르며 붙는다</td>
+<td>요소 간격 0.2~0.4초</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>문구는 도장처럼 찍히고, 필기체는 써진다</strong>: 굵은 글자는 흐림에서 선명으로 툭 찍히고, 필기체는 한 획씩 써진다</td>
+<td>찍기 0.2초, 쓰기 단어당 0.3~0.5초</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>전환은 종이 물리 동작으로</strong>: 밀기, 찢어진 종이가 덮기, 구겨진 종이 구멍으로 빨려 들어가기</td>
+<td>전환 0.5~1.0초</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vox Typography 샘플과의 차이:</strong> Vox는 흑백·명조·빨간 손그림·하드컷(차분하고 저널리즘적)인 반면, 이 샘플은 <strong>따뜻한 크라프트지·원색 블롭·손글씨 폰트·물리적 종이 전환</strong>(경쾌하고 SNS 광고적)입니다.</p>
+<hr />
+<h2>2. 비주얼 시스템</h2>
+<table>
+<thead>
+<tr>
+<th>요소</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>배경</td>
+<td>크라프트지, 구겨진 종이, 줄무늬 종이 등 <strong>따뜻한 베이지 종이 텍스처 여러 장</strong>을 번갈아 사용(보일)</td>
+</tr>
+<tr>
+<td>인물</td>
+<td><strong>세피아·흑백 컷아웃</strong>(배경 제거). 상반신이 화면 아래쪽에 걸쳐 있고, 뒤에 <strong>원색 유기적 블롭</strong>(오렌지·청록)이 받침</td>
+</tr>
+<tr>
+<td>사진</td>
+<td>전체 화면 세피아 사진에 <strong>하프톤 망점</strong> 질감, 찢어진 종이 조각으로 대각선 분할</td>
+</tr>
+<tr>
+<td>컬러</td>
+<td>번트 오렌지, 머스터드 옐로, 청록, 올리브 그린, 벽돌색 빨강, 연분홍, 청색. 채도는 약간 낮춘 레트로 톤</td>
+</tr>
+<tr>
+<td>타이포</td>
+<td>① 굵은 손글씨 대문자(러프한 가장자리), ② 필기체 스크립트, ③ 흰 종이 알약(pill) 라벨 위의 문구</td>
+</tr>
+<tr>
+<td>배경 대형 글자</td>
+<td>화면 뒤에 <strong>아주 큰 그런지 질감 글자</strong>("PRO", "MA" 등)를 옅게 깔아 깊이감을 준다</td>
+</tr>
+<tr>
+<td>장식</td>
+<td>청록·오렌지 <strong>낙서 곡선</strong>(손으로 그은 선), 노란 붓 터치 하이라이트, 대각선 색종이 띠</td>
+</tr>
+<tr>
+<td>질감</td>
+<td>필름 그레인, 종이 섬유, 하프톤. 모든 면에 질감이 있고 매끈한 벡터 면이 없다</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3. 섹션 구성과 타임라인</h2>
+<table>
+<thead>
+<tr>
+<th>섹션</th>
+<th>시간(초)</th>
+<th>프레임</th>
+<th>내용</th>
+<th>등장 → 정지 → 전환</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>0.0–4.0</td>
+<td>0–120</td>
+<td>인물 + "How is your WEEKEND going?"</td>
+<td>오렌지 블롭이 아래서 솟음 → 인물이 <strong>찢어진 종이 마스크</strong>로 드러남 → 낙서 선 → 배경 대형 글자 → 라벨·문구 차례로 → 1.3초 정지 → <strong>가로 밀기</strong></td>
+</tr>
+<tr>
+<td>S2</td>
+<td>4.0–8.1</td>
+<td>121–243</td>
+<td>인물 + "Collage of doodle style photo effect"</td>
+<td>새 장면이 오른쪽에서 <strong>밀고 들어옴</strong> → 청록 블롭과 인물 동일 패턴 → 오렌지 낙서 선 → 3줄 문구 → 2초 정지 → <strong>세로 밀기(위로)</strong></td>
+</tr>
+<tr>
+<td>S3</td>
+<td>8.1–12.0</td>
+<td>244–359</td>
+<td>"Explore your creativity fearlessly"</td>
+<td>대각선 <strong>색종이 띠</strong>(빨강·노랑·분홍·초록)가 아래에서 쓸어 올라오며 한 줄씩 문구 등장 → 1.8초 정지 → <strong>구겨진 종이 구멍</strong></td>
+</tr>
+<tr>
+<td>S4</td>
+<td>12.0–16.1</td>
+<td>360–483</td>
+<td>전체 화면 인물 사진 + "Unlock endless possibilities"</td>
+<td>구겨진 종이 구멍이 커지며 사진 드러남 → 사진이 <strong>찢어진 조각</strong>으로 대각선 분할 → 알약 라벨 + 문구 → 2초 정지 → <strong>찢어진 종이가 아래서 덮음</strong></td>
+</tr>
+<tr>
+<td>S5</td>
+<td>16.1–20.2</td>
+<td>484–605</td>
+<td>인물 + "INNOVATIVE" 반복</td>
+<td>블롭·인물·낙서 선 패턴 → "INNOVATIVE"가 <strong>여러 줄로 반복 적층</strong>, 하단에 빨간 띠 + 흰 글자 → 1.8초 정지 → <strong>찢어진 종이가 아래서 덮음</strong></td>
+</tr>
+<tr>
+<td>S6</td>
+<td>20.2–25.0</td>
+<td>606–749</td>
+<td>"Thanks for Watching" 엔딩</td>
+<td>네 모서리에서 <strong>찢어진 색종이</strong>(빨강·청·초록·노랑)가 순서대로 들어옴 → 필기체가 <strong>한 획씩 써짐</strong> → 3초 정지(엔딩)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>리듬:</strong> 섹션당 약 4초. 요소 쌓기 약 1.5~2초, 정지 약 1.5~2초, 전환 0.5~1초. Vox 샘플보다 쌓기가 길고 요소 수가 많다.</p>
+<hr />
+<h2>4. 모션 패턴 카탈로그</h2>
+<p>프레임은 30fps 기준입니다. 변화량은 108p 흑백으로 줄인 프레임 사이의 평균 밝기 차이입니다.</p>
+<h3>P1. 블롭 솟아오르기 (Blob Rise) — S1, S2, S5 도입</h3>
+<ul>
+<li><strong>동작:</strong> 원색 유기적 블롭이 화면 아래 밖에서 위로 솟아올라 인물 뒤 자리에 멈춘다. 모양이 살짝 꿀렁이며 커진다(스케일 약 80%에서 100%).</li>
+<li><strong>길이:</strong> 약 0.35초(4스텝). 곡선은 Ease Out(d1_intro 4~10칸).</li>
+<li><strong>포인트:</strong> 블롭이 <strong>먼저</strong> 나와 인물이 설 무대를 만든다.</li>
+</ul>
+<h3>P2. 찢어진 종이 마스크 리빌 (Torn-Paper Mask Reveal) — 모든 인물 등장</h3>
+<ul>
+<li><strong>동작:</strong> 인물 컷아웃이 아래에서 올라오는데, 머리 위를 <strong>찢어진 흰 종이 띠</strong>가 덮고 있다. 인물이 올라가는 동안 종이 띠가 조금씩 위로 벗겨지며 얼굴이 마지막에 드러난다(d1_intro 8~24칸, d4_tear 6~24칸).</li>
+<li><strong>길이:</strong> 약 0.8~1.0초. 인물 위치는 Ease Out이고, 종이 띠는 조금 늦게 따라간다(약 2스텝 지연).</li>
+<li><strong>포인트:</strong> "얼굴을 마지막에 보여 주는" 기대감 연출. 종이 띠의 흰 섬유 가장자리가 핵심.</li>
+<li><strong>After Effects:</strong> 찢어진 종이 PNG를 Track Matte(Alpha Inverted)로 쓰고 Position을 인물보다 늦게 키프레임.</li>
+</ul>
+<h3>P3. 낙서 선 그리기 (Doodle Line Draw-On) — S1, S2, S5</h3>
+<ul>
+<li><strong>동작:</strong> 청록·오렌지 굵은 곡선이 화면 가장자리에서 시작해 그려진다(d5_type 0~9칸).</li>
+<li><strong>길이:</strong> 약 0.5~0.8초. 12fps 스텝이라 획이 뚝뚝 끊기며 자라는 느낌.</li>
+<li><strong>After Effects:</strong> Shape Layer Trim Paths(End 0→100%), 둥근 끝(Round Cap).</li>
+</ul>
+<h3>P4. 알약 라벨 → 문구 (Pill Label Pop) — S1 "How is", S4 "Unlock endless possibilities"</h3>
+<ul>
+<li><strong>동작:</strong> ① 빈 <strong>흰 종이 알약</strong>이 먼저 튀어나오고(스케일 0→110→100%), ② 2~3스텝 뒤 그 위에 글자가 찍힌다.</li>
+<li><strong>길이:</strong> 알약 약 0.2초, 글자 약 0.2초. 라벨은 약간 기울어져 있다(±5°).</li>
+</ul>
+<h3>P5. 도장 찍기 텍스트 (Stamp-In Text) — "WEEKEND", "INNOVATIVE", "EXPLORE"</h3>
+<ul>
+<li><strong>동작:</strong> 굵은 대문자가 <strong>흐리고 약간 크게</strong>(약 110%) 나타났다가 1~2스텝 만에 선명하고 원래 크기로 툭 자리 잡는다(d5_type 17~19칸).</li>
+<li><strong>길이:</strong> 약 0.17~0.25초(2~3스텝).</li>
+<li><strong>포인트:</strong> 이동 없이 초점과 크기만 바뀐다. 짧고 단단한 느낌.</li>
+</ul>
+<h3>P6. 필기체 쓰기 (Script Write-On) — "your", "doodle style", "Thanks for Watching"</h3>
+<ul>
+<li><strong>동작:</strong> 필기체가 <strong>획 순서대로</strong> 써진다(d6_end 15~24칸). 여러 단어가 있으면 한 단어가 끝나기 전에 다음 줄이 시작되기도 한다.</li>
+<li><strong>길이:</strong> 단어당 약 0.3~0.5초. "Thanks for Watching" 전체 약 1.4초.</li>
+<li><strong>After Effects:</strong> Stroke 효과 + 마스크 경로, 또는 Write-on 플러그인. Python에서는 글자 폭 방향으로 늘어나는 와이프 마스크로 흉내 낼 수 있다.</li>
+</ul>
+<h3>P7. 붓 터치 하이라이트 (Brush Swipe Behind Text) — "Going?", "photo effect"</h3>
+<ul>
+<li><strong>동작:</strong> 노란 붓 자국이 왼쪽에서 오른쪽으로 칠해지고(약 0.2초), 그 위에 글자가 찍힌다(d5_type 22~24칸).</li>
+<li><strong>포인트:</strong> Vox 샘플의 빨간 타원 역할을 이 스타일에서는 노란 붓 자국이 맡는다.</li>
+</ul>
+<h3>P8. 배경 대형 글자 (Giant Background Type) — S1 "PRO", S5 "MA"</h3>
+<ul>
+<li><strong>동작:</strong> 인물 뒤에 화면 높이의 70% 정도 되는 <strong>그런지 질감 대형 글자</strong>가 한 번에 나타난다(블러 없이 컷인). 투명도 약 60~70%로 옅게.</li>
+<li><strong>포인트:</strong> 움직이지 않는 깊이 레이어. 주인공 문구보다 한 단계 뒤에 있다.</li>
+</ul>
+<h3>P9. 반복 적층 텍스트 (Kinetic Repeat Stack) — S5 "INNOVATIVE"</h3>
+<ul>
+<li><strong>동작:</strong> 같은 단어가 인물 뒤에 <strong>여러 줄로 반복</strong>되고, 줄마다 약 1~2스텝 간격으로 아래에서 위로 쌓인다. 맨 아래에는 빨간 띠 위에 흰색으로 같은 단어를 한 번 더 크게 둔다.</li>
+<li><strong>길이:</strong> 전체 약 0.6~0.8초.</li>
+<li><strong>포인트:</strong> 한 단어를 리듬 있게 강조하는 방법.</li>
+</ul>
+<h3>P10. 대각선 색종이 띠 스윕 (Diagonal Paper Band Sweep) — S3</h3>
+<ul>
+<li><strong>동작:</strong> 빨강·노랑·분홍·초록 색종이 띠가 대각선 방향으로 아래에서 쓸려 올라오고, 띠 하나에 문구 한 줄이 함께 올라온다.</li>
+<li><strong>길이:</strong> 줄마다 약 0.2~0.3초 간격, 전체 약 1.2초.</li>
+</ul>
+<h3>P11. 가로·세로 밀기 전환 (Paper Push) — S1→S2(가로), S2→S3(세로)</h3>
+<ul>
+<li><strong>동작:</strong> 현재 장면 전체가 <strong>한 장의 종이처럼</strong> 옆(또는 위)으로 밀려 나가고, 다음 장면의 종이가 붙어서 들어온다. 두 종이 사이 경계에 종이 가장자리 그림자가 보인다(d2_wipe1).</li>
+<li><strong>길이:</strong> 약 0.5초. 변화량 52.6 → 32.4 → 21.7 → 17.2 → 15.2 → 11.8 …: 첫 스텝이 가장 크고 이후 감소하는 <strong>Expo Out</strong>.</li>
+<li><strong>포인트:</strong> 새 장면이 들어오는 도중에 이미 블롭과 인물 등장이 시작된다(겹쳐 진행).</li>
+</ul>
+<h3>P12. 구겨진 종이 구멍 전환 (Crumpled Paper Hole) — S3→S4</h3>
+<ul>
+<li><strong>동작:</strong> 작게 구겨진 종이 뭉치가 화면 오른쪽 위에 나타나 중앙으로 오면서 <strong>가운데가 뚫린 구멍</strong>이 된다. 구멍이 점점 커지며 다음 장면(전체 화면 사진)이 구멍 속으로 보이다가 화면을 가득 채운다(d3_crumple).</li>
+<li><strong>길이:</strong> 약 1.0초(구겨진 뭉치 0.3초, 구멍 확장 0.7초). 변화량 12.4 → 20.2 → 34.8 → 24.1 → 36.1 → 23.6 → 26.1 → 13.8 …: 중간에 최대인 <strong>Ease In-Out</strong>.</li>
+<li><strong>After Effects:</strong> 구겨진 종이 구멍 스톡 영상 + Luma Matte.</li>
+</ul>
+<h3>P13. 찢어진 종이 덮기 전환 (Torn Paper Rise) — S4→S5, S5→S6</h3>
+<ul>
+<li><strong>동작:</strong> 윗부분이 찢어진 새 종이가 <strong>아래에서 위로 올라와</strong> 이전 장면을 덮는다. 찢긴 가장자리가 수평으로 울퉁불퉁하다(d4_tear 2~10칸, d6_end 3~8칸).</li>
+<li><strong>길이:</strong> 약 0.4~0.5초, Ease Out.</li>
+<li><strong>포인트:</strong> 새 종이가 다 덮기 전에 다음 장면의 블롭이 이미 그 종이 위에 올라와 있다(전환과 등장을 겹쳐 속도감).</li>
+</ul>
+<h3>P14. 사진 찢어 나누기 (Torn Split Photo) — S4</h3>
+<ul>
+<li><strong>동작:</strong> 전체 화면 사진 위로 <strong>대각선 찢김 선</strong> 2개가 생기며, 각 조각이 살짝 다른 색조(세피아/컬러)와 위치로 어긋난다. 하프톤 망점이 조각마다 다르게 보인다.</li>
+<li><strong>길이:</strong> 찢김 등장 약 0.2초(컷에 가깝다).</li>
+</ul>
+<h3>P15. 모서리 색종이 프레임 (Corner Paper Frame) — S6 엔딩</h3>
+<ul>
+<li><strong>동작:</strong> 빨강 → 청 → 초록 → 노랑 순서로 <strong>찢어진 색종이 조각</strong>이 네 모서리에서 하나씩 슬며시 들어와 화면을 액자처럼 감싼다(d6_end 9~17칸).</li>
+<li><strong>길이:</strong> 조각마다 약 0.3초, 간격 약 0.2초.</li>
+</ul>
+<h3>P16. 종이 질감 보일 (Paper Texture Boil) — 전체</h3>
+<ul>
+<li><strong>동작:</strong> 배경 종이 텍스처가 <strong>약 10프레임(3fps)마다</strong> 다른 종이로 바뀐다(예: 크라프트지 → 구겨진 종이 → 줄무늬 종이). 요소는 12fps 스텝으로 아주 조금씩 흔들린다.</li>
+<li><strong>근거:</strong> 정지 구간(프레임 290~360)에서 변화량 피크가 290, 300, 308, 318, 328, 338, 348, 358로 약 10프레임 주기.</li>
+<li><strong>포인트:</strong> 이 스타일의 "손으로 만든 스톱모션" 느낌은 12fps 스텝과 이 보일이 함께 만든다.</li>
+</ul>
+<hr />
+<h2>5. 타이밍 치트시트 (30fps 기준)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>프레임</th>
+<th>초</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>스텝 간격 (12fps)</td>
+<td>2.5</td>
+<td>0.083</td>
+</tr>
+<tr>
+<td>배경 텍스처 교체 (보일)</td>
+<td>약 10</td>
+<td>약 0.33</td>
+</tr>
+<tr>
+<td>블롭 솟아오르기</td>
+<td>10–12</td>
+<td>0.35–0.4</td>
+</tr>
+<tr>
+<td>인물 찢어진 종이 리빌</td>
+<td>24–30</td>
+<td>0.8–1.0</td>
+</tr>
+<tr>
+<td>낙서 선 그리기</td>
+<td>15–24</td>
+<td>0.5–0.8</td>
+</tr>
+<tr>
+<td>알약 라벨 → 글자</td>
+<td>6 + 6</td>
+<td>0.2 + 0.2</td>
+</tr>
+<tr>
+<td>도장 찍기 텍스트</td>
+<td>5–8</td>
+<td>0.17–0.25</td>
+</tr>
+<tr>
+<td>필기체 쓰기</td>
+<td>단어당 9–15</td>
+<td>단어당 0.3–0.5</td>
+</tr>
+<tr>
+<td>요소 사이 간격</td>
+<td>6–12</td>
+<td>0.2–0.4</td>
+</tr>
+<tr>
+<td>정지 구간</td>
+<td>45–60</td>
+<td>1.5–2.0</td>
+</tr>
+<tr>
+<td>밀기 / 찢어진 종이 덮기 전환</td>
+<td>12–15</td>
+<td>0.4–0.5</td>
+</tr>
+<tr>
+<td>구겨진 종이 구멍 전환</td>
+<td>30</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>6. 우리 파이프라인(Python)에 적용하는 방법</h2>
+<p>지금까지 만든 스크립트(<code>make_video_collage.py</code>, <code>make_video_vox_v3.py</code>)에 붙일 수 있는 형태입니다. <code>step_time</code>, <code>expo_out</code>은 Vox 문서의 함수를 그대로 씁니다.</p>
+<pre><code class="language-python">import math, random
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+
+STEP_FPS, BOIL_FPS = 12, 3
+
+def boil_index(t, n_textures=3):
+    &quot;&quot;&quot;P16: 3fps로 배경 종이 텍스처를 순환.&quot;&quot;&quot;
+    return int(t * BOIL_FPS) % n_textures
+
+def torn_edge_mask(w, h, cut_y, seed=0, jag=10, step=14):
+    &quot;&quot;&quot;P2·P13: cut_y 위쪽을 찢어진 가장자리로 잘라 낸 마스크(L). 아래쪽이 255.&quot;&quot;&quot;
+    rng = random.Random(seed)
+    pts = [(0, h)]
+    for x in range(0, w + step, step):
+        pts.append((x, cut_y + rng.uniform(-jag, jag)))
+    pts.append((w, h))
+    m = Image.new(&quot;L&quot;, (w, h), 0)
+    ImageDraw.Draw(m).polygon(pts, fill=255)
+    return m
+
+def torn_paper_sheet(w, h, color, seed=0, fiber=8):
+    &quot;&quot;&quot;P13·P15: 윗변이 찢어지고 흰 섬유층이 보이는 종이 한 장(RGBA).&quot;&quot;&quot;
+    out = Image.new(&quot;RGBA&quot;, (w, h + fiber * 2), (0, 0, 0, 0))
+    white = torn_edge_mask(w, h + fiber * 2, fiber, seed, jag=fiber + 4)
+    body = torn_edge_mask(w, h + fiber * 2, fiber * 2, seed + 1, jag=fiber)
+    out.paste(Image.new(&quot;RGBA&quot;, out.size, (250, 247, 238, 255)), (0, 0), white)
+    out.paste(Image.new(&quot;RGBA&quot;, out.size, color + (255,)), (0, 0), body)
+    return out
+
+def stamp_in(sprite, p):
+    &quot;&quot;&quot;P5: 흐리고 110%에서 선명하고 100%로 (p: 0~1).&quot;&quot;&quot;
+    s = 1.1 - 0.1 * min(max(p, 0), 1)
+    im = sprite.resize((max(1, int(sprite.width * s)), max(1, int(sprite.height * s))), Image.BICUBIC)
+    r = 6 * (1 - min(max(p, 0), 1))
+    return im.filter(ImageFilter.GaussianBlur(r)) if r &gt; 0.3 else im
+
+def script_write_on(sprite, p):
+    &quot;&quot;&quot;P6: 필기체를 왼쪽부터 드러낸다(획 순서 근사). 끝부분은 부드럽게.&quot;&quot;&quot;
+    w, h = sprite.size
+    edge = int(w * min(max(p, 0), 1))
+    m = np.zeros((h, w), np.float32)
+    m[:, :edge] = 1
+    feather = 18
+    lo = max(0, edge - feather)
+    if edge &gt; lo:
+        m[:, lo:edge] = np.linspace(1, 0, edge - lo)[None, :]
+    a = np.asarray(sprite.getchannel(&quot;A&quot;), np.float32) * m
+    out = sprite.copy()
+    out.putalpha(Image.fromarray(a.astype(np.uint8)))
+    return out
+
+def hole_mask(w, h, cx, cy, r, seed=0, n=90):
+    &quot;&quot;&quot;P12: 가장자리가 잔잔하게 울퉁불퉁한 구멍 마스크(구멍 안이 255). r을 키우며 다음 장면을 드러낸다.&quot;&quot;&quot;
+    rng = random.Random(seed)
+    pts = []
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        rr = r * (1 + 0.05 * math.sin(a * 3 + seed) + 0.03 * math.sin(a * 11) + rng.uniform(-0.035, 0.035))
+        pts.append((cx + rr * math.cos(a), cy + rr * 0.8 * math.sin(a)))
+    m = Image.new(&quot;L&quot;, (w, h), 0)
+    ImageDraw.Draw(m).polygon(pts, fill=255)
+    return m
+</code></pre>
+<p><strong>적용 순서 예시 (한 섹션, 약 4초)</strong>
+1. <code>t=0.0</code> 이전 장면을 찢어진 종이가 아래서 덮으며 전환(P13, 0.45초)
+2. <code>t=0.15</code> 원색 블롭이 솟아오름(P1)
+3. <code>t=0.35</code> 사진 컷아웃이 올라오며 찢어진 종이 띠가 벗겨짐(P2, 0.9초)
+4. <code>t=0.9</code> 낙서 선 그리기(P3), 배경 대형 글자 컷인(P8)
+5. <code>t=1.2~2.0</code> 알약 라벨(P4) → 굵은 문구 도장(P5) → 필기체 쓰기(P6) → 노란 붓 하이라이트(P7)
+6. <code>t=2.0~3.6</code> 정지(12fps 흔들림 + 3fps 텍스처 보일)
+7. 다음 섹션으로 밀기(P11), 찢어진 종이 덮기(P13), 또는 구겨진 종이 구멍(P12)</p>
+<hr />
+<h2>7. 우리 영상(자동차 변천사)에 적용할 때의 제안</h2>
+<table>
+<thead>
+<tr>
+<th>장면</th>
+<th>이 스타일로 바꾸면</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>타이틀</td>
+<td>오렌지 블롭 위로 도로 사진이 찢어진 종이 마스크로 드러나고, "바퀴 위의" 필기체 + "140년" 도장 텍스트</td>
+</tr>
+<tr>
+<td>1886 / 1908</td>
+<td>자동차 컷아웃(배경 제거) + 블롭, 배경에 대형 연도 "1886"을 그런지 질감으로 옅게(P8)</td>
+</tr>
+<tr>
+<td>1908 → 1950s</td>
+<td><strong>구겨진 종이 구멍 전환</strong>(P12)으로 흑백 시대에서 컬러 시대로 넘어가는 느낌</td>
+</tr>
+<tr>
+<td>1950s 황금기</td>
+<td>사진을 대각선으로 찢어 세피아/컬러 조각으로 나누기(P14)</td>
+</tr>
+<tr>
+<td>1973 오일 쇼크</td>
+<td>"OIL SHOCK"를 여러 줄로 반복 적층(P9), 하단 빨간 띠</td>
+</tr>
+<tr>
+<td>2020s → 엔딩</td>
+<td>모서리 색종이 프레임(P15) + "다음 140년은?" 필기체 쓰기(P6)</td>
+</tr>
+</tbody>
+</table>
+<p>필요한 준비물: 차량 이미지는 <strong>배경 제거 컷아웃</strong>이 있으면 가장 효과적입니다(Flow에서 흰 배경 단독 차량으로 생성한 뒤 누끼). 종이 텍스처는 3장 이상 준비하면 보일 효과를 낼 수 있습니다.</p>
+<blockquote>
+<p>참고: 이 문서는 모션 기법(타이밍, 곡선, 연출 순서)만 정리한 것입니다. 샘플 영상의 이미지, 문구, 템플릿 자체를 재사용하지 않도록 주의하세요.</p>
+</blockquote></main></body></html>

@@ -1,0 +1,194 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>미세먼지 데이터분석 연습</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">Google Colab에서 열려면 아래 [원본 내려받기] 후 colab.research.google.com → 업로드</p>
+<section class="nbmd"><h1>미세먼지 예방·대비를 위한 데이터 분석 연습 (Google Colab · 3-셀 구성)</h1>
+<p><strong>목표</strong>: 직접 다운로드한 미세먼지(에어코리아) 자료와 기상(기상청) 자료를 코랩에 업로드해서, "바람이 약하고 비가 안 올 때 미세먼지가 심해지는가"를 실제 수치로 확인하고, 예방·대비용 요약 메시지까지 만들어봅니다.</p>
+<h2>준비물 (직접 다운로드)</h2>
+<ol>
+<li><strong>미세먼지 자료</strong> — 에어코리아(airkorea.or.kr) "정보공개 → 다운로드" 또는 공공데이터포털에서 원하는 기간·측정소의 PM10(또는 PM2.5) 자료를 CSV로 다운로드</li>
+<li><strong>기상 자료</strong> — 기상자료개방포털(data.kma.go.kr) "지상관측자료(ASOS) 시간자료"에서 같은 기간·같은 지역의 풍속·강수량 자료를 CSV로 다운로드</li>
+</ol>
+<blockquote>
+<p>두 자료의 <strong>기간과 지역(측정소/지점)을 최대한 맞춰서</strong> 받아야 나중에 시간 기준으로 합칠 수 있습니다.</p>
+</blockquote>
+<h2>실습 흐름</h2>
+<ol>
+<li>준비 — 한글 폰트 설치, 라이브러리 임포트</li>
+<li>설정 + 데이터 불러오기 — 두 CSV 업로드 → 컬럼 정리 → 하나의 표로 합치기</li>
+<li>결과 확인 — 상관관계·그래프·예방 메시지</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>에러가 나면 셀을 하나씩 다시 실행하지 말고, 메뉴에서 "런타임 → 모두 실행(Run all)"을 눌러 처음부터 다시 실행하세요.</strong>
+(중간 셀만 다시 실행하면 이전 실행 결과가 남아있어 오류 원인 파악이 더 어려워집니다.)</p>
+</blockquote></section>
+<section class="nbmd"><h2>셀 1. 준비: 한글 폰트 설치 + 라이브러리 임포트</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># 코랩(리눅스) 환경에는 한글 폰트가 기본으로 없어서 나눔고딕을 설치합니다.</span>
+<span class="err">!</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">qq</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">fonts</span><span class="o">-</span><span class="n">nanum</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.font_manager</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fm</span>
+
+<span class="n">font_path</span> <span class="o">=</span> <span class="s2">"/usr/share/fonts/truetype/nanum/NanumGothic.ttf"</span>
+<span class="n">fm</span><span class="o">.</span><span class="n">fontManager</span><span class="o">.</span><span class="n">addfont</span><span class="p">(</span><span class="n">font_path</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s2">"font"</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">"NanumGothic"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">"axes.unicode_minus"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># 마이너스(-) 기호 깨짐 방지</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"준비 완료. (그래프 글자가 네모(ㅁ)로 깨지면 '런타임 &gt; 런타임 다시 시작' 후 전체를 다시 실행)"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>셀 2. 설정 + 데이터 불러오기</h2>
+<p>두 파일을 업로드받고, 컬럼 이름을 정리해서 하나의 표로 합치는 것까지 이 셀 하나로 끝냅니다.</p>
+<p><strong>아래에서 직접 수정해야 하는 곳은 <code>AIR_COL_MAP</code>과 <code>WEATHER_COL_MAP</code> 두 딕셔너리뿐입니다</strong> — 본인이 받은 파일을 먼저 열어(또는 아래 <code>head()</code> 출력을 보고) 실제 컬럼명이 다르면 왼쪽 값만 그 이름으로 바꿔주세요.</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># -------------------- 2-1. 파일 업로드 --------------------</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">google.colab</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"1) 미세먼지(에어코리아) 파일을 선택하세요."</span><span class="p">)</span>
+<span class="n">uploaded_air</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">upload</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">2) 기상관측(기상청 ASOS) 파일을 선택하세요."</span><span class="p">)</span>
+<span class="n">uploaded_weather</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">upload</span><span class="p">()</span>
+
+<span class="n">air_filename</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">uploaded_air</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">weather_filename</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">uploaded_weather</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># -------------------- 2-2. 파일 읽기 (인코딩 자동 시도) --------------------</span>
+<span class="c1"># 공공기관 CSV는 한글 인코딩이 cp949(EUC-KR)인 경우가 많아 순서대로 시도합니다.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_csv_safe</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"utf-8-sig"</span><span class="p">,</span> <span class="s2">"cp949"</span><span class="p">,</span> <span class="s2">"utf-8"</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">enc</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> 인코딩을 확인해주세요. (엑셀에서 열어 'CSV UTF-8'로 다시 저장해도 됩니다)"</span><span class="p">)</span>
+
+<span class="n">df_air_raw</span> <span class="o">=</span> <span class="n">read_csv_safe</span><span class="p">(</span><span class="n">air_filename</span><span class="p">)</span>
+<span class="n">df_weather_raw</span> <span class="o">=</span> <span class="n">read_csv_safe</span><span class="p">(</span><span class="n">weather_filename</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== 미세먼지 파일 컬럼 ==="</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_air_raw</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df_air_raw</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== 기상 파일 컬럼 ==="</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_weather_raw</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df_weather_raw</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1"># -------------------- 2-3. 컬럼 이름 정리 --------------------</span>
+<span class="c1"># 에어코리아 다운로드 파일에 흔히 쓰이는 컬럼명 예시: "측정일시", "PM10", "PM25"(또는 "PM2.5")</span>
+<span class="c1"># ↓ 왼쪽(키)을 실제 파일의 컬럼명으로, 오른쪽(값)은 그대로 두세요.</span>
+<span class="n">AIR_COL_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"측정일시"</span><span class="p">:</span> <span class="s2">"일시"</span><span class="p">,</span>
+    <span class="s2">"PM10"</span><span class="p">:</span> <span class="s2">"PM10"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># 기상자료개방포털(ASOS) 다운로드 파일에 흔히 쓰이는 컬럼명 예시: "일시", "풍속(m/s)", "강수량(mm)"</span>
+<span class="n">WEATHER_COL_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"일시"</span><span class="p">:</span> <span class="s2">"일시"</span><span class="p">,</span>
+    <span class="s2">"풍속(m/s)"</span><span class="p">:</span> <span class="s2">"풍속"</span><span class="p">,</span>
+    <span class="s2">"강수량(mm)"</span><span class="p">:</span> <span class="s2">"강수량"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">df_air</span> <span class="o">=</span> <span class="n">df_air_raw</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">AIR_COL_MAP</span><span class="p">)[</span><span class="nb">list</span><span class="p">(</span><span class="n">AIR_COL_MAP</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span>
+<span class="n">df_weather</span> <span class="o">=</span> <span class="n">df_weather_raw</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">WEATHER_COL_MAP</span><span class="p">)[</span><span class="nb">list</span><span class="p">(</span><span class="n">WEATHER_COL_MAP</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span>
+
+<span class="c1"># -------------------- 2-4. 시간 형식 통일 + 병합 --------------------</span>
+<span class="n">df_air</span><span class="p">[</span><span class="s2">"일시"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_air</span><span class="p">[</span><span class="s2">"일시"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+<span class="n">df_weather</span><span class="p">[</span><span class="s2">"일시"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_weather</span><span class="p">[</span><span class="s2">"일시"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+
+<span class="c1"># 강수량은 비가 안 온 시간이 빈칸(NaN)으로 들어오는 경우가 많아 0으로 채웁니다.</span>
+<span class="n">df_weather</span><span class="p">[</span><span class="s2">"강수량"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_weather</span><span class="p">[</span><span class="s2">"강수량"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">df_air</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_air</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+<span class="n">df_weather</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_weather</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_air</span><span class="p">,</span> <span class="n">df_weather</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">"일시"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">,</span> <span class="s2">"풍속"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">병합 완료: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2">행"</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"일시"</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>셀 3. 결과 확인: 상관관계 + 시각화 + 예방 메시지</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># -------------------- 3-1. 상관관계 확인 --------------------</span>
+<span class="n">corr_wind</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">])</span>
+<span class="n">corr_rain</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"강수량"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PM10-풍속 상관계수: </span><span class="si">{</span><span class="n">corr_wind</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  (음수일수록 '바람이 강할수록 미세먼지가 낮다'는 경향)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PM10-강수량 상관계수: </span><span class="si">{</span><span class="n">corr_rain</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  (음수일수록 '비가 많이 올수록 미세먼지가 낮다'는 경향)"</span><span class="p">)</span>
+
+<span class="c1"># -------------------- 3-2. 산점도: 풍속 vs PM10 --------------------</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#2980b9"</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"PM10"</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">x_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">"풍속"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_line</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">z</span><span class="p">)(</span><span class="n">x_line</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#c0392b"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"추세선"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"풍속 (m/s)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"PM10 (㎍/m³)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"풍속과 미세먼지(PM10)의 관계"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">"풍속_PM10_산점도.png"</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># -------------------- 3-3. 비 온 날 vs 비 안 온 날 평균 PM10 --------------------</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">"비여부"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"강수량"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"비 온 시간"</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"비 안 온 시간"</span><span class="p">)</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"비여부"</span><span class="p">)[</span><span class="s2">"PM10"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== 강수 유무별 평균 PM10 ==="</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">summary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"bar"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s2">"#7f8c8d"</span><span class="p">,</span> <span class="s2">"#2980b9"</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"평균 PM10 (㎍/m³)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"비 온 시간 vs 비 안 온 시간 평균 미세먼지"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">"강수유무_PM10_비교.png"</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># -------------------- 3-4. 예방·대비 메시지 자동 생성 (최근 5개 시각) --------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pm10_message</span><span class="p">(</span><span class="n">pm</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">pm</span> <span class="o">&gt;=</span> <span class="mi">150</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"매우 나쁨 — 외출 자제, 마스크(KF80 이상) 착용 권장"</span>
+    <span class="k">elif</span> <span class="n">pm</span> <span class="o">&gt;=</span> <span class="mi">80</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"나쁨 — 장시간 실외활동 자제, 환기는 짧게"</span>
+    <span class="k">elif</span> <span class="n">pm</span> <span class="o">&gt;=</span> <span class="mi">30</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"보통 — 민감군(어린이·노약자·호흡기질환자)은 주의"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"좋음 — 환기하기 좋은 시간"</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== 최근 시각 예방·대비 메시지 ==="</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"일시"</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'일시'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | PM10 </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'PM10'</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> | 풍속 </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'풍속'</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m/s | </span><span class="si">{</span><span class="n">pm10_message</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'PM10'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># -------------------- 3-5. CSV로 결과 저장 --------------------</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"미세먼지_기상_병합결과.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">저장 완료: 미세먼지_기상_병합결과.csv  (왼쪽 폴더 아이콘 → 파일 목록에서 우클릭 → 다운로드)"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>부록 (선택): 자주 만나는 문제</h2>
+<table>
+<thead>
+<tr>
+<th>문제 상황</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KeyError: '측정일시'</code> 같은 컬럼 오류</td>
+<td>실제 파일의 컬럼명이 다름</td>
+<td>셀 2의 <code>head()</code> 출력에서 실제 컬럼명 확인 → <code>AIR_COL_MAP</code>/<code>WEATHER_COL_MAP</code>의 왼쪽 값만 수정</td>
+</tr>
+<tr>
+<td>병합 후 <code>len(df)</code>가 0</td>
+<td>두 파일의 시간 형식이 다르거나(예: <code>2026-01-01 09:00</code> vs <code>202601010900</code>), 기간이 겹치지 않음</td>
+<td><code>pd.to_datetime(..., format="...")</code>으로 형식을 맞추거나, 두 파일의 기간·지역을 다시 확인</td>
+</tr>
+<tr>
+<td>그래프 글자가 네모(ㅁ)로 깨짐</td>
+<td>폰트 캐시 문제</td>
+<td>메뉴 "런타임 → 런타임 다시 시작" 후 전체 재실행</td>
+</tr>
+<tr>
+<td>상관계수가 예상과 반대로 나옴</td>
+<td>실제로 그럴 수 있음(예: 정체된 대기 vs 계절적 요인 등 다른 변수 개입)</td>
+<td>나쁜 결과가 아니라 좋은 발견 — "왜 그런지"를 다음 분석 질문으로 이어가면 됨</td>
+</tr>
+</tbody>
+</table></section></main></body></html>

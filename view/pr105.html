@@ -1,0 +1,91 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>factcheck demo</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">factcheck_demo.py · 46줄</p><div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><span class="sd">"""</span>
+<span class="sd">파이썬 기반 자동 팩트체킹 데모</span>
+<span class="sd">-------------------------------------------------</span>
+<span class="sd">시나리오: AI가 7월 박스오피스에 대한 기사를 하나 썼습니다.</span>
+<span class="sd">그 기사 안에 나온 숫자가, 우리가 실제로 수집한 정답 데이터(CSV/엑셀)와 맞는지</span>
+<span class="sd">자동으로 대조해서 "이 문장은 사실과 일치/불일치"를 판정합니다.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="c1"># 1) "정답지" 역할을 할 실제 데이터를 불러옵니다</span>
+<span class="c1">#    (오늘 실습에서 만든 boxoffice_2026_07_monthly.csv 와 같은 파일)</span>
+<span class="n">ground_truth</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"boxoffice_2026_07_monthly.csv"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== 정답 데이터 ==="</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">)</span>
+
+<span class="c1"># 2) AI가 썼다고 가정한 기사 텍스트 (실제로는 ChatGPT API가 생성한 결과가 들어갑니다)</span>
+<span class="n">ai_generated_article</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">2026년 7월 극장가는 '호프'가 휩쓸었다. 호프는 누적 관객수 385만 명을 동원하며</span>
+<span class="s2">압도적 1위를 차지했다. 2위는 스파이더맨: 브랜드 뉴 데이로, 166만 명을 모았다.</span>
+<span class="s2">3위 토이 스토리 5는 120만 명의 관객을 불러들였다.</span>
+<span class="s2">"""</span>
+
+<span class="c1"># 3) 기사 문장 속에서 "검증 가능한 사실"(숫자+단위)을 정규식으로 뽑아냅니다</span>
+<span class="c1">#    패턴: "숫자(만 명)" 형태를 찾습니다.</span>
+<span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(\d+)만\s*명"</span>
+<span class="n">claims_in_article</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">ai_generated_article</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">기사에서 발견한 관객수 주장(만 명 단위): </span><span class="si">{</span><span class="n">claims_in_article</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># 4) 기사에 등장한 영화 제목도 함께 뽑아서, 정답지의 실제 값과 짝지어 비교합니다</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== 팩트체크 결과 ==="</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"영화제목"</span><span class="p">]</span>
+    <span class="n">actual_audience_manmyeong</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"7월 누적관객수"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10000</span><span class="p">)</span>  <span class="c1"># 만 명 단위로 환산</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">ai_generated_article</span><span class="p">:</span>
+        <span class="c1"># 기사 안에서 이 영화 제목 근처에 있는 숫자를 찾아 비교</span>
+        <span class="c1"># (간단한 데모이므로, 실제로는 문장 단위로 더 정교하게 분리해야 합니다)</span>
+        <span class="n">match_found</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">actual_audience_manmyeong</span><span class="p">)</span> <span class="ow">in</span> <span class="n">claims_in_article</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">"✅ 일치"</span> <span class="k">if</span> <span class="n">match_found</span> <span class="k">else</span> <span class="s2">"⚠️ 불일치 (확인 필요)"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">: 기사 주장 대조 → 실제값 </span><span class="si">{</span><span class="n">actual_audience_manmyeong</span><span class="si">}</span><span class="s2">만 명 | </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">: 기사에 언급되지 않음 (대조 생략)"</span><span class="p">)</span>
+</pre></div></td></tr></table></div>
+</main></body></html>

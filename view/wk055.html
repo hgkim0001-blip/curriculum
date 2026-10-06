@@ -1,0 +1,131 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>10주차 RAG원리 데모 코랩</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">Google Colab에서 열려면 아래 [원본 내려받기] 후 colab.research.google.com → 업로드</p>
+<section class="nbmd"><h1>RAG 원리 학습 데모 — NotebookLM 뒤에서 실제로 무슨 일이 일어나는가</h1>
+<p><strong>목표</strong>: 우리가 지금까지 NotebookLM을 '블랙박스'로만 써왔습니다. 이 노트북은 그 블랙박스 안에서 실제로 벌어지는 3단계(청크 분할 → 임베딩·검색 → 생성)를 코드로 직접 열어봅니다. 학생이 코딩할 필요는 없고, 강사가 실행하며 원리를 설명하는 시연용입니다.</p>
+<h2>실습 흐름</h2>
+<ol>
+<li>지식베이스 만들기 — 검증된 정답 데이터를 문장 단위 '문서'로 준비</li>
+<li>청크 분할 — 문서를 작은 조각으로 나누기</li>
+<li>임베딩 + 벡터스토어 — 문장을 숫자(벡터)로 바꿔 저장하기</li>
+<li>검색 시연 — 좋은 질문 vs 근거 없는 질문을 던져 차이를 확인</li>
+<li>(선택) 생성 결합 — 검색된 근거로 실제 답변까지 만들어보기</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>에러가 나면 셀을 하나씩 다시 실행하지 말고, 메뉴에서 "런타임 → 모두 실행(Run all)"을 눌러 처음부터 다시 실행하세요.</strong>
+(중간 셀만 다시 실행하면 이전 실행 결과가 남아있어 오류 원인 파악이 더 어려워집니다.)</p>
+</blockquote>
+<p>이 노트북은 10주차 강의의 'RAG 개념' 슬라이드를 실제 코드로 시연하기 위한 것입니다. 학생들에게는 결과 화면 위주로 보여주고, 코드 자체를 따라 치게 할 필요는 없습니다 (이 과정은 노코드 활용법이 중심입니다).</p></section>
+<section class="nbmd"><h2>1단계: 준비 — 라이브러리 설치</h2>
+<p>RAG를 직접 구현할 때 쓰는 대표 도구인 <strong>LangChain</strong>을 사용합니다.</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="n">langchain</span> <span class="n">langchain</span><span class="o">-</span><span class="n">community</span> <span class="n">langchain</span><span class="o">-</span><span class="n">huggingface</span> <span class="n">langchain</span><span class="o">-</span><span class="n">text</span><span class="o">-</span><span class="n">splitters</span> <span class="n">faiss</span><span class="o">-</span><span class="n">cpu</span> <span class="n">sentence</span><span class="o">-</span><span class="n">transformers</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"설치 완료"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>2단계: 지식베이스 만들기</h2>
+<p>지난 10주차 실습에서 검증한 '정답 데이터'를 문장 단위 문서로 준비합니다. 이게 바로 NotebookLM에 '소스'로 업로드하는 것과 같은 역할입니다.</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.documents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
+
+<span class="c1"># 검증된 정답 데이터 (추석 연휴 기상예보) - 문장 단위로 나눠서 "문서"로 만듭니다</span>
+<span class="n">facts_raw</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">2026년 9월 16일 18시, 기상청은 추석 연휴(9월 24일~26일) 중기예보를 발표했다.</span>
+<span class="s2">서울·인천·경기 지역은 9월 24일 최저기온 16도, 최고기온 29도, 강수확률 20%로 예보됐다.</span>
+<span class="s2">서울·인천·경기 지역은 9월 25일 최저기온 16도, 최고기온 28도, 강수확률 20%로 예보됐다.</span>
+<span class="s2">강원영서 지역은 9월 24일 최저기온 14도, 최고기온 27도, 강수확률 20%로 예보됐다.</span>
+<span class="s2">강원영서 지역은 9월 25일 최저기온 15도, 최고기온 27도, 강수확률 20%로 예보됐다.</span>
+<span class="s2">광주·전남 지역은 9월 25일 최저기온 18도, 최고기온 30도, 강수확률 20%로 예보됐다.</span>
+<span class="s2">대구·경북 지역은 9월 26일 최저기온 17도, 최고기온 30도, 강수확률 20%로 예보됐다.</span>
+<span class="s2">제주도는 9월 24일부터 26일까지 강수확률 30%로, 다른 지역보다 다소 높게 예보됐다.</span>
+<span class="s2">전국 대부분 지역의 날씨는 구름많음으로 예보됐다.</span>
+<span class="s2">"""</span>
+
+<span class="n">docs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Document</span><span class="p">(</span><span class="n">page_content</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">facts_raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"원본 문서(문장) 수: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span><span class="si">}</span><span class="s2">개</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">page_content</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>3단계: 청크 분할</h2>
+<p>AI는 문서를 통째로 읽지 않고, 작은 조각(청크)으로 나눠서 다룹니다. 지금은 문장이 이미 짧아서 큰 변화는 없지만, 실제로는 긴 기사 하나가 여러 청크로 쪼개지는 과정입니다.</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_text_splitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecursiveCharacterTextSplitter</span>
+
+<span class="n">splitter</span> <span class="o">=</span> <span class="n">RecursiveCharacterTextSplitter</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">chunk_overlap</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">chunks</span> <span class="o">=</span> <span class="n">splitter</span><span class="o">.</span><span class="n">split_documents</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"청크 수: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span><span class="si">}</span><span class="s2">개 (원본 문서 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span><span class="si">}</span><span class="s2">개에서 분할)"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>4단계: 임베딩 + 벡터스토어 구축</h2>
+<p>각 청크를 '의미를 담은 숫자 배열(벡터)'로 바꾸고, 검색이 빠른 저장소(FAISS)에 넣습니다. 이 단계가 끝나야 '의미가 비슷한 문장 찾기'가 가능해집니다.</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_huggingface</span><span class="w"> </span><span class="kn">import</span> <span class="n">HuggingFaceEmbeddings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.vectorstores</span><span class="w"> </span><span class="kn">import</span> <span class="n">FAISS</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"임베딩 모델을 내려받는 중입니다 (처음 1번만, 1~2분 소요)..."</span><span class="p">)</span>
+<span class="n">embeddings</span> <span class="o">=</span> <span class="n">HuggingFaceEmbeddings</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"</span><span class="p">)</span>
+
+<span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">chunks</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+
+<span class="n">sample_vector</span> <span class="o">=</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">embed_query</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">page_content</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">예시: '</span><span class="si">{</span><span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">page_content</span><span class="si">}</span><span class="s2">' 이 문장은"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_vector</span><span class="p">)</span><span class="si">}</span><span class="s2">개의 숫자로 이루어진 벡터로 변환됐습니다: </span><span class="si">{</span><span class="n">sample_vector</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2"> ... (앞 5개만 표시)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">벡터스토어 구축 완료 — 이제 '의미 검색'이 가능합니다."</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>5단계: 검색 시연 — 좋은 질문 vs 근거 없는 질문</h2>
+<p>여기가 핵심입니다. 두 가지 질문을 던져서 차이를 직접 확인합니다.
+- <strong>질문 1</strong>: 소스에 실제로 있는 사실을 묻습니다.
+- <strong>질문 2</strong>: 소스에 없는, 우리가 지난 실습에서 AI가 지어냈던 바로 그 '관계자 코멘트'를 묻습니다.</p>
+<p>(참고: 아래 '유사도 거리'는 <strong>작을수록 더 관련 있는</strong> 문서라는 뜻입니다.)</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"질문 1: 9월 25일 광주전남 최고기온은 몇 도야? (→ 소스에 실제로 있음)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">results1</span> <span class="o">=</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">similarity_search_with_score</span><span class="p">(</span><span class="s2">"9월 25일 광주전남 최고기온은 몇 도야?"</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">results1</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[유사도 거리 </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">page_content</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"질문 2: 기상청 관계자가 이번 연휴 날씨에 대해 뭐라고 코멘트했어? (→ 소스에 없음)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">results2</span> <span class="o">=</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">similarity_search_with_score</span><span class="p">(</span><span class="s2">"기상청 관계자가 이번 연휴 날씨에 대해 뭐라고 코멘트했어?"</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">results2</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[유사도 거리 </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">page_content</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">관찰 포인트: 질문 2의 유사도 거리가 질문 1보다 뚜렷하게 큽니다(=관련성이 낮습니다)."</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"즉, 제대로 만들어진 RAG 시스템이라면 이 시점에 '관련 근거를 찾지 못했다'는 신호를 냈어야 합니다."</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"그런데 도메인별 스크립트봇은 이 신호를 무시하고 코멘트를 지어냈던 것입니다."</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>6단계 (선택): 검색 결과로 실제 답변 생성하기</h2>
+<p>지금까지는 '검색(Retrieval)'까지만 했습니다. 실제 NotebookLM은 여기에 한 단계를 더해
+검색된 청크를 근거로 자연스러운 답변 문장을 '생성(Generation)'합니다.</p>
+<p>이 단계는 LLM API 키가 있어야 실행됩니다 (Gemini API 키 등). 키가 없다면 건너뛰어도
+5단계까지의 원리 설명으로 충분합니다.</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># Gemini API 키가 있는 경우에만 실행하세요.</span>
+<span class="n">GEMINI_API_KEY</span> <span class="o">=</span> <span class="s2">"여기에_있으면_입력_없으면_건너뛰기"</span>
+
+<span class="k">if</span> <span class="n">GEMINI_API_KEY</span> <span class="ow">and</span> <span class="s2">"여기에"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GEMINI_API_KEY</span><span class="p">:</span>
+    <span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="n">langchain</span><span class="o">-</span><span class="n">google</span><span class="o">-</span><span class="n">genai</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_genai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatGoogleGenerativeAI</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">ChatGoogleGenerativeAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gemini-3.6-flash"</span><span class="p">,</span> <span class="n">google_api_key</span><span class="o">=</span><span class="n">GEMINI_API_KEY</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rag_answer</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># 상위 k개를 그대로 근거로 사용</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">page_content</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">found</span><span class="p">)</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"다음 근거만 사용해서 질문에 답하세요. 근거에 답이 없으면 반드시 '모른다'고 답하세요.</span><span class="se">\n\n</span><span class="s2">근거:</span><span class="se">\n</span><span class="si">{</span><span class="n">context</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">질문: </span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">return</span> <span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"[질문 1 답변]"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">rag_answer</span><span class="p">(</span><span class="s2">"9월 25일 광주전남 최고기온은 몇 도야?"</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"[질문 2 답변]"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">rag_answer</span><span class="p">(</span><span class="s2">"기상청 관계자가 이번 연휴 날씨에 대해 뭐라고 코멘트했어?"</span><span class="p">))</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"API 키가 없어 이 단계는 건너뜁니다. (5단계까지의 검색 결과로 원리 설명은 충분합니다)"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>정리</h2>
+<ul>
+<li>NotebookLM이 '출처를 표시'할 수 있는 이유: 답변을 만들기 전에 이미 '어느 청크에서 가져왔는지'를 알고 있기 때문입니다.</li>
+<li>관련 근거가 없을 때 '모른다'고 답하게 만드는 것은 저절로 되는 게 아니라, 위 6단계 코드의 <code>if not context:</code> 처럼 <strong>명시적으로 설계해야 하는 부분</strong>입니다. 이 설계가 부실하면, 지난 실습에서 봤던 할루시네이션이 발생합니다.</li>
+</ul></section></main></body></html>

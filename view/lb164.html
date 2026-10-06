@@ -1,0 +1,565 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>make_test_retro_opener</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">make_test_retro_opener.py · 283줄</p><div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><span class="sd">"""세 번째 모션패턴(Retro Collage Opener) 테스트 — 약 11.5초.</span>
+
+<span class="sd">S1 타이틀(잉크 스플랫 → 선버스트 → 간판 팝 → 마키 별)</span>
+<span class="sd">  → 구겨진 종이 전환(실제 그린/블루 소스, crumple_transition.py)</span>
+<span class="sd">S2 1950s 황금기(핑크 선버스트 + 해 원 + 차량 솟기 + 간판 + 3D 필기체 + 3D 별)</span>
+<span class="sd">  → 원형 아이리스(잉크 스플랫)</span>
+<span class="sd">S3 2020s(파랑 선버스트 + 해 원 + 전기차 + 3D 글자)</span>
+<span class="sd">제작 기준: 요소 12fps / 배경 4fps / wiggle(1,10) / 필름 룩 오버레이</span>
+<span class="sd">출력: test_retro_opener.mp4</span>
+<span class="sd">"""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageEnhance</span><span class="p">,</span> <span class="n">ImageFilter</span><span class="p">,</span> <span class="n">ImageFont</span><span class="p">,</span> <span class="n">ImageOps</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">crumple_transition</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">CT</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">retro_kit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">R</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">retro_kit</span><span class="w"> </span><span class="kn">import</span> <span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">t_el</span><span class="p">,</span> <span class="n">t_bg</span><span class="p">,</span> <span class="n">seg</span><span class="p">,</span> <span class="n">expo_out</span><span class="p">,</span> <span class="n">lerp</span><span class="p">,</span> <span class="n">clamp</span><span class="p">,</span> <span class="n">paste_c</span><span class="p">,</span> <span class="n">wiggle</span>
+
+<span class="n">HERE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">FONTS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"assets"</span><span class="p">,</span> <span class="s2">"fonts"</span><span class="p">)</span>
+<span class="n">OUT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"test_retro_opener.mp4"</span><span class="p">)</span>
+<span class="n">FPS</span><span class="p">,</span> <span class="n">DUR</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="mf">11.5</span>
+
+<span class="n">CREAM</span> <span class="o">=</span> <span class="p">(</span><span class="mi">247</span><span class="p">,</span> <span class="mi">238</span><span class="p">,</span> <span class="mi">222</span><span class="p">)</span>
+<span class="n">MUSTARD</span> <span class="o">=</span> <span class="p">(</span><span class="mi">232</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">CORAL</span> <span class="o">=</span> <span class="p">(</span><span class="mi">240</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">110</span><span class="p">)</span>
+<span class="n">RED</span> <span class="o">=</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">52</span><span class="p">)</span>
+<span class="n">HOTPINK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">232</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">122</span><span class="p">)</span>
+<span class="n">PINK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">246</span><span class="p">,</span> <span class="mi">166</span><span class="p">,</span> <span class="mi">186</span><span class="p">)</span>
+<span class="n">PURPLE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">112</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">172</span><span class="p">)</span>
+<span class="n">BLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">212</span><span class="p">)</span>
+<span class="n">LBLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">124</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">236</span><span class="p">)</span>
+<span class="n">SUN</span> <span class="o">=</span> <span class="p">(</span><span class="mi">246</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">62</span><span class="p">)</span>
+<span class="n">NAVY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span>
+
+<span class="n">F_HAN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FONTS</span><span class="p">,</span> <span class="s2">"BlackHanSans-Regular.ttf"</span><span class="p">)</span>
+<span class="n">F_DO</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FONTS</span><span class="p">,</span> <span class="s2">"DoHyeon-Regular.ttf"</span><span class="p">)</span>
+<span class="n">F_LOB</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FONTS</span><span class="p">,</span> <span class="s2">"Lobster-Regular.ttf"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">F</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+
+<span class="n">SCENES</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">8.6</span><span class="p">),</span> <span class="p">(</span><span class="mf">8.6</span><span class="p">,</span> <span class="n">DUR</span><span class="p">)]</span>
+<span class="n">CRUMPLE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>      <span class="c1"># S2 시작에서 1.1초 동안 구겨진 종이 전환</span>
+<span class="n">IRIS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)</span>        <span class="c1"># S3 시작에서 0.45초 아이리스</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sticker</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">252</span><span class="p">,</span> <span class="mi">248</span><span class="p">,</span> <span class="mi">240</span><span class="p">),</span> <span class="n">shadow</span><span class="o">=</span><span class="n">NAVY</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""컷아웃에 흰 스티커 테두리 + 딱딱한 오프셋 그림자."""</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">getchannel</span><span class="p">(</span><span class="s2">"A"</span><span class="p">)</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="n">border</span> <span class="o">+</span> <span class="mi">18</span>
+    <span class="n">big</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">am</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"L"</span><span class="p">,</span> <span class="n">big</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">am</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">pad</span><span class="p">))</span>
+    <span class="n">edge</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ImageFilter</span><span class="o">.</span><span class="n">MaxFilter</span><span class="p">(</span><span class="n">border</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">point</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="mi">255</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">60</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">sh</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">,</span> <span class="n">big</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">shadow</span> <span class="o">+</span> <span class="p">(</span><span class="mi">255</span><span class="p">,))</span>
+    <span class="n">big</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">sh</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">edge</span><span class="p">)</span>
+    <span class="n">wh</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">,</span> <span class="n">big</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">color</span> <span class="o">+</span> <span class="p">(</span><span class="mi">255</span><span class="p">,))</span>
+    <span class="n">big</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">wh</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">edge</span><span class="p">)</span>
+    <span class="n">big</span><span class="o">.</span><span class="n">alpha_composite</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">pad</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">big</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_car</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"cutouts"</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">)</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">ImageEnhance</span><span class="o">.</span><span class="n">Contrast</span><span class="p">(</span><span class="n">ImageEnhance</span><span class="o">.</span><span class="n">Color</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">))</span><span class="o">.</span><span class="n">enhance</span><span class="p">(</span><span class="n">sat</span><span class="p">))</span><span class="o">.</span><span class="n">enhance</span><span class="p">(</span><span class="mf">1.08</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">rgb</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">putalpha</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">getchannel</span><span class="p">(</span><span class="s2">"A"</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="n">out</span><span class="o">.</span><span class="n">width</span>
+    <span class="k">return</span> <span class="n">sticker</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">s</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">s</span><span class="p">)),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">paper_field</span><span class="p">():</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"assets"</span><span class="p">,</span> <span class="s2">"paper"</span><span class="p">,</span> <span class="s2">"crumple.jpg"</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"L"</span><span class="p">),</span> <span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">))</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">())[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">():</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"paper"</span><span class="p">:</span> <span class="n">paper_field</span><span class="p">()}</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"splat_navy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">splat</span><span class="p">(</span><span class="mi">420</span><span class="p">,</span> <span class="n">NAVY</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"splat_pink"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">splat</span><span class="p">(</span><span class="mi">420</span><span class="p">,</span> <span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"mstar"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">marquee_star</span><span class="p">(</span><span class="mi">560</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"s1"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"바퀴 위의"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_DO</span><span class="p">,</span> <span class="mi">86</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="n">RED</span><span class="p">),</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"140년"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_HAN</span><span class="p">,</span> <span class="mi">230</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"자동차의 변천사"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_DO</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="p">(</span><span class="mi">196</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">30</span><span class="p">)),</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"1886 - 2026"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_HAN</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">214</span><span class="p">,</span> <span class="mi">110</span><span class="p">)),</span>
+    <span class="p">]</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"sparkle"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sparkle</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="n">NAVY</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"sparkle_w"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sparkle</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="p">(</span><span class="mi">252</span><span class="p">,</span> <span class="mi">248</span><span class="p">,</span> <span class="mi">240</span><span class="p">))</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"car50"</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_car</span><span class="p">(</span><span class="s2">"car_1950s.png"</span><span class="p">,</span> <span class="mi">1250</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"car20"</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_car</span><span class="p">(</span><span class="s2">"car_2020s.png"</span><span class="p">,</span> <span class="mi">1120</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"s2_sign"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"자동차의 황금기"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_HAN</span><span class="p">,</span> <span class="mi">110</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="n">RED</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"s2_script"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">extrude_text</span><span class="p">(</span><span class="s2">"1950s"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_LOB</span><span class="p">,</span> <span class="mi">240</span><span class="p">),</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">72</span><span class="p">),</span> <span class="p">(</span><span class="mi">190</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="n">depth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="n">NAVY</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"s2_sub"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"고속도로, 교외, 테일핀"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_DO</span><span class="p">,</span> <span class="mi">58</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">214</span><span class="p">,</span> <span class="mi">110</span><span class="p">),</span> <span class="n">pad</span><span class="o">=</span><span class="mi">26</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"star3d"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">star3d</span><span class="p">(</span><span class="mi">170</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"star3d_s"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">star3d</span><span class="p">(</span><span class="mi">110</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"s3_sign"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sign_panel</span><span class="p">(</span><span class="s2">"전기차 + 자율주행"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_HAN</span><span class="p">,</span> <span class="mi">96</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="n">BLUE</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"s3_script"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">extrude_text</span><span class="p">(</span><span class="s2">"다음 140년은?"</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">F_HAN</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="p">(</span><span class="mi">252</span><span class="p">,</span> <span class="mi">246</span><span class="p">,</span> <span class="mi">236</span><span class="p">),</span> <span class="n">PURPLE</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="n">NAVY</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"crumple"</span><span class="p">]</span> <span class="o">=</span> <span class="n">CT</span><span class="o">.</span><span class="n">load_crumple</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1.8</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"film"</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">FilmLook</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"bg_cache"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">A</span>
+
+
+<span class="c1"># ---------------- 배경 (4fps) ----------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">background</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">ub</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">ub</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">A</span><span class="p">[</span><span class="s2">"bg_cache"</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">A</span><span class="p">[</span><span class="s2">"bg_cache"</span><span class="p">][</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sunburst</span><span class="p">(</span><span class="n">ub</span><span class="p">,</span> <span class="p">[</span><span class="n">CREAM</span><span class="p">,</span> <span class="n">MUSTARD</span><span class="p">,</span> <span class="n">CORAL</span><span class="p">,</span> <span class="n">CREAM</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">rpm</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">halftone</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">214</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sunburst</span><span class="p">(</span><span class="n">ub</span><span class="p">,</span> <span class="p">[</span><span class="n">PINK</span><span class="p">,</span> <span class="n">HOTPINK</span><span class="p">,</span> <span class="n">PINK</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rpm</span><span class="o">=-</span><span class="mi">7</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1150</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">520</span><span class="p">)</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">halftone</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">190</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1150</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">520</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">sunburst</span><span class="p">(</span><span class="n">ub</span><span class="p">,</span> <span class="p">[</span><span class="n">LBLUE</span><span class="p">,</span> <span class="n">BLUE</span><span class="p">,</span> <span class="n">LBLUE</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rpm</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">560</span><span class="p">,</span> <span class="n">swirl</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">R</span><span class="o">.</span><span class="n">halftone</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">170</span><span class="p">),</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">560</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.9</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="s2">"paper"</span><span class="p">])</span>      <span class="c1"># 종이 결</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="s2">"bg_cache"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">64</span><span class="p">:</span>
+        <span class="n">A</span><span class="p">[</span><span class="s2">"bg_cache"</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">A</span><span class="p">[</span><span class="s2">"bg_cache"</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">twinkles</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">spots</span><span class="p">,</span> <span class="n">spr_key</span><span class="o">=</span><span class="s2">"sparkle"</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spots</span><span class="p">):</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="p">(</span><span class="n">ue</span> <span class="o">*</span> <span class="mf">1.5</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="mf">0.37</span> <span class="o">+</span> <span class="n">seed</span> <span class="o">*</span> <span class="mf">0.13</span><span class="p">)</span> <span class="o">%</span> <span class="mf">1.0</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">ph</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span>
+        <span class="k">if</span> <span class="n">sc</span> <span class="o">&gt;</span> <span class="mf">0.08</span><span class="p">:</span>
+            <span class="n">wx</span><span class="p">,</span> <span class="n">wy</span> <span class="o">=</span> <span class="n">wiggle</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mi">300</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="n">seed</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+            <span class="n">paste_c</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">spr_key</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="n">wx</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">wy</span><span class="p">,</span> <span class="n">sc</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">spr</span><span class="p">,</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">wig</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">pop_scale</span><span class="p">(</span><span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">dur</span><span class="p">))</span>
+    <span class="n">wx</span><span class="p">,</span> <span class="n">wy</span> <span class="o">=</span> <span class="n">wiggle</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="n">wig</span><span class="p">)</span> <span class="k">if</span> <span class="n">wig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">paste_c</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">spr</span><span class="p">,</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">wx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">+</span> <span class="n">wy</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rise</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">spr</span><span class="p">,</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mf">0.45</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">expo_out</span><span class="p">(</span><span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">dur</span><span class="p">))</span>
+    <span class="n">paste_c</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">spr</span><span class="p">,</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="mi">800</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">k</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scene0</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">ub</span><span class="p">):</span>
+    <span class="n">bg</span> <span class="o">=</span> <span class="n">background</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ub</span><span class="p">)</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">,</span> <span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">),</span> <span class="n">CREAM</span> <span class="o">+</span> <span class="p">(</span><span class="mi">255</span><span class="p">,))</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.9</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="s2">"paper"</span><span class="p">]))</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+                         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">)</span>
+    <span class="c1"># 선버스트가 가운데서 원형으로 퍼지며 드러난다 (요소 12fps)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">expo_out</span><span class="p">(</span><span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="o">.</span><span class="n">iris_mask</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">:</span>  <span class="c1"># 잉크 스플랫</span>
+        <span class="n">paste_c</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"splat_navy"</span><span class="p">],</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">,</span> <span class="mf">0.25</span> <span class="o">+</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">expo_out</span><span class="p">(</span><span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)))</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"mstar"</span><span class="p">],</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">wig</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">760</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">),</span> <span class="p">(</span><span class="mi">820</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">),</span> <span class="p">(</span><span class="mi">720</span><span class="p">,</span> <span class="mi">710</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mi">1210</span><span class="p">,</span> <span class="mi">780</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.82</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">spr</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">t0</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="s2">"s1"</span><span class="p">],</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">spr</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">twinkles</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="p">[(</span><span class="mi">260</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="p">(</span><span class="mi">1700</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1760</span><span class="p">,</span> <span class="mi">760</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="mi">230</span><span class="p">,</span> <span class="mi">820</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+                             <span class="p">(</span><span class="mi">1380</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mi">520</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">st</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scene1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">ub</span><span class="p">):</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">background</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ub</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">expo_out</span><span class="p">(</span><span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 해 원</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">400</span> <span class="o">*</span> <span class="n">k</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">ellipse</span><span class="p">([</span><span class="mi">1150</span> <span class="o">-</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">520</span> <span class="o">-</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">1150</span> <span class="o">+</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">520</span> <span class="o">+</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">16</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">))</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">ellipse</span><span class="p">([</span><span class="mi">1150</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="mi">520</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="mi">1150</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span> <span class="mi">520</span> <span class="o">+</span> <span class="n">r</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="n">SUN</span><span class="p">)</span>
+    <span class="n">rise</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"car50"</span><span class="p">],</span> <span class="mi">1230</span><span class="p">,</span> <span class="mi">760</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"s2_sign"</span><span class="p">],</span> <span class="mi">1180</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">1.45</span><span class="p">,</span> <span class="n">angle</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&gt;=</span> <span class="mf">1.7</span><span class="p">:</span>
+        <span class="n">wx</span><span class="p">,</span> <span class="n">wy</span> <span class="o">=</span> <span class="n">wiggle</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="n">paste_c</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">R</span><span class="o">.</span><span class="n">write_on</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="s2">"s2_script"</span><span class="p">],</span> <span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">)),</span> <span class="mi">430</span> <span class="o">+</span> <span class="n">wx</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">470</span> <span class="o">+</span> <span class="n">wy</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"s2_sub"</span><span class="p">],</span> <span class="mi">360</span><span class="p">,</span> <span class="mi">660</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">2.35</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"star3d"</span><span class="p">],</span> <span class="mi">1760</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">wig</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"star3d_s"</span><span class="p">],</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">2.15</span><span class="p">,</span> <span class="n">angle</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span> <span class="n">wig</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&gt;</span> <span class="mf">2.2</span><span class="p">:</span>
+        <span class="n">twinkles</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="p">[(</span><span class="mi">1820</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">560</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="p">(</span><span class="mi">1560</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)],</span> <span class="s2">"sparkle_w"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">st</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scene2</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="n">ub</span><span class="p">):</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">background</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ub</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">expo_out</span><span class="p">(</span><span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">k</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">ellipse</span><span class="p">([</span><span class="mi">960</span> <span class="o">-</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">560</span> <span class="o">-</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">960</span> <span class="o">+</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">560</span> <span class="o">+</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">16</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">ellipse</span><span class="p">([</span><span class="mi">960</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="mi">560</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="mi">960</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span> <span class="mi">560</span> <span class="o">+</span> <span class="n">r</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="n">SUN</span><span class="p">)</span>
+    <span class="n">rise</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"car20"</span><span class="p">],</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">790</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"s3_sign"</span><span class="p">],</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">930</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">angle</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&gt;=</span> <span class="mf">1.3</span><span class="p">:</span>
+        <span class="n">wx</span><span class="p">,</span> <span class="n">wy</span> <span class="o">=</span> <span class="n">wiggle</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+        <span class="n">paste_c</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">R</span><span class="o">.</span><span class="n">write_on</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="s2">"s3_script"</span><span class="p">],</span> <span class="n">seg</span><span class="p">(</span><span class="n">ue</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)),</span> <span class="mi">960</span> <span class="o">+</span> <span class="n">wx</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">190</span> <span class="o">+</span> <span class="n">wy</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"star3d"</span><span class="p">],</span> <span class="mi">1680</span><span class="p">,</span> <span class="mi">380</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">angle</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span> <span class="n">wig</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">pop</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"star3d_s"</span><span class="p">],</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">420</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wig</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ue</span> <span class="o">&gt;</span> <span class="mf">1.2</span><span class="p">:</span>
+        <span class="n">twinkles</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">ue</span><span class="p">,</span> <span class="p">[(</span><span class="mi">160</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="mi">1760</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="p">(</span><span class="mi">1780</span><span class="p">,</span> <span class="mi">820</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mi">180</span><span class="p">,</span> <span class="mi">860</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)],</span> <span class="s2">"sparkle_w"</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">st</span>
+
+
+<span class="n">SCENE</span> <span class="o">=</span> <span class="p">[</span><span class="n">scene0</span><span class="p">,</span> <span class="n">scene1</span><span class="p">,</span> <span class="n">scene2</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">render_scene</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">SCENES</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">SCENE</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">A</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">te</span> <span class="o">-</span> <span class="n">a</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tb</span> <span class="o">-</span> <span class="n">a</span><span class="p">))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="n">te</span><span class="p">,</span> <span class="n">tb</span> <span class="o">=</span> <span class="n">t_el</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">t_bg</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SCENES</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="n">te</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">SCENES</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">te</span> <span class="o">-</span> <span class="n">SCENES</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">render_scene</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">tb</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">CRUMPLE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">CRUMPLE</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>            <span class="c1"># R5: 실제 구겨진 종이 소스</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">render_scene</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">tb</span><span class="p">)</span>          <span class="c1"># 이전 장면도 계속 살아 있다</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">CT</span><span class="o">.</span><span class="n">frame_at</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="s2">"crumple"</span><span class="p">],</span> <span class="n">u</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">CT</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prev</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cur</span><span class="p">)))</span>
+    <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">IRIS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">IRIS</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>                 <span class="c1"># R4: 아이리스 + 잉크 스플랫</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">render_scene</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">tb</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">u</span> <span class="o">/</span> <span class="n">IRIS</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="o">.</span><span class="n">iris_mask</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">560</span><span class="p">))</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">)</span>
+        <span class="n">paste_c</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="s2">"splat_pink"</span><span class="p">],</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">560</span><span class="p">,</span> <span class="mf">0.3</span> <span class="o">+</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">expo_out</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cur</span>
+    <span class="k">return</span> <span class="n">A</span><span class="p">[</span><span class="s2">"film"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">te</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">build</span><span class="p">()</span>
+    <span class="n">grain</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span>
+    <span class="n">only</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="n">only</span><span class="p">:</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PREVIEW_DIR"</span><span class="p">,</span> <span class="n">HERE</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">only</span><span class="p">:</span>
+            <span class="n">render</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"retro_</span><span class="si">{</span><span class="n">ts</span><span class="si">}</span><span class="s2">.png"</span><span class="p">))</span>
+        <span class="k">return</span>
+    <span class="n">ffmpeg</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">"ffmpeg"</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">DUR</span> <span class="o">*</span> <span class="n">FPS</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">ffmpeg</span><span class="p">,</span> <span class="s2">"-y"</span><span class="p">,</span> <span class="s2">"-loglevel"</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">,</span> <span class="s2">"-f"</span><span class="p">,</span> <span class="s2">"rawvideo"</span><span class="p">,</span> <span class="s2">"-pix_fmt"</span><span class="p">,</span> <span class="s2">"rgb24"</span><span class="p">,</span> <span class="s2">"-s"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">W</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">H</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                          <span class="s2">"-r"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">FPS</span><span class="p">),</span> <span class="s2">"-i"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="s2">"-c:v"</span><span class="p">,</span> <span class="s2">"libx264"</span><span class="p">,</span> <span class="s2">"-preset"</span><span class="p">,</span> <span class="s2">"slow"</span><span class="p">,</span> <span class="s2">"-crf"</span><span class="p">,</span> <span class="s2">"19"</span><span class="p">,</span>
+                          <span class="s2">"-pix_fmt"</span><span class="p">,</span> <span class="s2">"yuv420p"</span><span class="p">,</span> <span class="s2">"-movflags"</span><span class="p">,</span> <span class="s2">"+faststart"</span><span class="p">,</span> <span class="n">OUT</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">last</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">fi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">fi</span> <span class="o">/</span> <span class="n">FPS</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">t_el</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">t_bg</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="n">last</span><span class="p">:</span>
+            <span class="n">frame</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">render</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span> <span class="n">key</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="n">frame</span> <span class="o">+</span> <span class="n">grain</span><span class="p">[</span><span class="n">fi</span> <span class="o">%</span> <span class="mi">5</span><span class="p">])</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">fi</span> <span class="o">%</span> <span class="mi">60</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"frame </span><span class="si">{</span><span class="n">fi</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"saved"</span><span class="p">,</span> <span class="n">OUT</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div></td></tr></table></div>
+</main></body></html>

@@ -1,0 +1,189 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>일러스트레이터 × Claude 연결 가이드 (MCP)</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><h1>일러스트레이터–Claude MCP 연결 가이드</h1>
+<p>2026-10-05 · 김사부</p>
+<h2>개요</h2>
+<p>일러스트레이터는 Claude Desktop의 설정 파일에 로컬 MCP 서버 한 항목을 추가하면 연결됩니다. 연결 후에는 대화로 문서 읽기, 도형·텍스트 생성, 레이어 정리, 내보내기, 저장을 지시할 수 있습니다.</p>
+<p>사용한 서버는 <a href="https://github.com/ie3jp/illustrator-mcp-server">illustrator-mcp-server</a>(제작 ie3jp, MIT 라이선스)입니다. 포토샵·에펙·프리미어 MCP와 같은 방식으로 동작합니다.</p>
+<p>명령이 전달되는 순서는 다음과 같습니다.</p>
+<ol>
+<li>Claude Desktop이 MCP 프로토콜로 서버(Node.js)에 도구 호출을 보냅니다.</li>
+<li>서버가 ExtendScript(JSX) 스크립트를 만들어 PowerShell COM으로 일러스트레이터에 전달합니다.</li>
+<li>일러스트레이터가 스크립트를 실행하고 결과를 JSON으로 돌려줍니다.</li>
+</ol>
+<p>Adobe 공식 커넥터(Adobe for Creativity)는 클라우드 방식이라 PC에 설치된 일러스트레이터를 직접 조작하는 용도로는 맞지 않습니다.</p>
+<h2>준비물</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>요구 사항</th>
+<th>이번 작업 환경</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Desktop</td>
+<td>로컬 MCP 서버를 실행할 수 있는 데스크톱 앱</td>
+<td>Windows 노트북</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>20 이상 (<code>node -v</code>로 확인)</td>
+<td>설치됨</td>
+</tr>
+<tr>
+<td>Adobe Illustrator</td>
+<td>2024(v28) 이상 검증, 2020~2023은 미검증</td>
+<td>Illustrator 2024</td>
+</tr>
+<tr>
+<td>운영체제</td>
+<td>macOS, Windows</td>
+<td>Windows</td>
+</tr>
+</tbody>
+</table>
+<p>제작자는 Windows를 실제 기기에서 테스트하지 않았다고 밝히고 있지만, 이번 작업에서는 읽기·생성·레이어 이동·내보내기·저장이 모두 동작했습니다.</p>
+<h2>설정 파일 수정</h2>
+<p>수정할 파일은 <code>C:\Users\&lt;사용자명&gt;\AppData\Roaming\Claude\claude_desktop_config.json</code>입니다. Claude Desktop의 설정 &gt; 개발자 &gt; 구성 편집으로도 열 수 있습니다.</p>
+<p><code>mcpServers</code> 안에 아래 <code>illustrator</code> 항목을 추가합니다. 앞 항목의 닫는 중괄호 뒤에 쉼표를 붙여야 합니다.</p>
+<pre><code class="language-json">&quot;illustrator&quot;: {
+  &quot;command&quot;: &quot;npx&quot;,
+  &quot;args&quot;: [
+    &quot;-y&quot;,
+    &quot;illustrator-mcp-server&quot;
+  ]
+}
+</code></pre>
+<p>기존 서버(AfterEffectsMCP, premiere-pro-v2, cinema4d, photoshop)와 <code>preferences</code> 등 나머지 내용은 그대로 둡니다.</p>
+<p>설정 파일 대신 확장 파일로 설치할 수도 있습니다. GitHub Releases에서 <code>illustrator-mcp-server.mcpb</code>를 받아 설정 &gt; 확장 프로그램에 끌어다 놓으면 됩니다. 이 방식은 자동 업데이트가 되지 않습니다.</p>
+<h2>적용과 연결 확인</h2>
+<ol>
+<li>기존 <code>claude_desktop_config.json</code>을 복사해 백업합니다.</li>
+<li>수정한 내용을 저장합니다.</li>
+<li>Claude Desktop을 트레이 아이콘에서 완전히 종료한 뒤 다시 실행합니다.</li>
+<li>설정 &gt; 개발자에서 <code>illustrator</code> 서버가 실행 중으로 표시되는지 확인합니다.</li>
+<li>일러스트레이터를 실행하고 문서를 하나 엽니다.</li>
+<li>Claude에게 "현재 문서 정보 알려줘"라고 요청합니다. 문서 크기, 색상 모드, 아트보드 수가 돌아오면 연결된 것입니다.</li>
+</ol>
+<h2>할 수 있는 작업</h2>
+<p>서버는 60개가 넘는 도구를 제공하며, 이번에 실제로 써 본 요청은 아래와 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>요청</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"illustrator라는 글씨를 써봐"</td>
+<td>아트보드 중앙에 200pt 텍스트 생성</td>
+</tr>
+<tr>
+<td>"필기체로 바꾸고 150% 키워줘, 가운데 정렬"</td>
+<td>Brush Script MT 300pt로 변경 후 중앙 배치</td>
+</tr>
+<tr>
+<td>"드롭쉐도우를 적용해줘"</td>
+<td>문서에 있던 Drop Shadow 그래픽 스타일 적용</td>
+</tr>
+<tr>
+<td>"강아지 캐릭터를 만들어줘"</td>
+<td>타원 17개로 플랫 카툰풍 강아지 생성</td>
+</tr>
+<tr>
+<td>"리깅용 여자 캐릭터도 만들어줘"</td>
+<td>부위별 레이어 21개로 된 정면 캐릭터 생성</td>
+</tr>
+<tr>
+<td>"화면의 캐릭터를 리깅용으로 수정해줘"</td>
+<td>한 그룹이던 캐릭터를 부위별 레이어로 분리</td>
+</tr>
+<tr>
+<td>"이 캐릭터를 저장해줘"</td>
+<td>지정 폴더에 .ai 파일로 저장</td>
+</tr>
+</tbody>
+</table>
+<p>작업 결과는 PNG로 내보내 Claude가 직접 눈으로 확인할 수 있습니다. 수정 전후 비교에 유용합니다.</p>
+<h2>리깅용 캐릭터 레이어 분리</h2>
+<p>커피를 든 여성 캐릭터는 전체가 이름 없는 그룹 하나였고, 이를 겉모습 변화 없이 최상위 레이어 24개로 나눠 <code>D:\illustratormcp\캐릭터 소스\woman_coffee_rig.ai</code>로 저장했습니다. 에펙에서 "컴포지션 - 레이어 크기 유지"로 가져오면 부위별 레이어로 들어옵니다.</p>
+<table>
+<thead>
+<tr>
+<th>부위</th>
+<th>레이어</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>얼굴</td>
+<td><code>Mouth</code>, <code>Eye_L</code>, <code>Eye_R</code>, <code>Hair_Front</code>, <code>Cheek_L</code>, <code>Cheek_R</code>, <code>Head</code>, <code>Ear_L</code>, <code>Ear_R</code></td>
+</tr>
+<tr>
+<td>머리 뒤</td>
+<td><code>Hair_Back</code></td>
+</tr>
+<tr>
+<td>몸통</td>
+<td><code>Cardigan</code>, <code>Torso</code>, <code>Neck</code></td>
+</tr>
+<tr>
+<td>팔</td>
+<td><code>Arm_R_Upper</code>, <code>Arm_R_Lower</code>, <code>Hand_R</code>, <code>Arm_L_Upper</code>, <code>Arm_L_Lower</code>, <code>Hand_L</code></td>
+</tr>
+<tr>
+<td>다리</td>
+<td><code>Leg_L</code>, <code>Leg_R</code>, <code>Foot_L</code>, <code>Foot_R</code></td>
+</tr>
+<tr>
+<td>소품</td>
+<td><code>Coffee</code></td>
+</tr>
+</tbody>
+</table>
+<p>L/R은 캐릭터 본인 기준이라 화면 왼쪽이 <code>_R</code>입니다. 에펙에서는 얼굴 부위와 <code>Hair_Back</code>을 <code>Head</code>에, <code>Head</code>를 <code>Neck</code>에, <code>Neck</code>을 <code>Torso</code>에 부모로 연결합니다.</p>
+<p>아직 남은 작업은 일러스트레이터에서 직접 해야 합니다.</p>
+<ul>
+<li>[ ] 다리를 무릎 위치에서 잘라 Upper/Lower로 분리</li>
+<li>[ ] 어깨와 팔꿈치에 둥근 겹침 추가</li>
+<li>[ ] 굽혀진 팔을 편 중립 포즈로 수정</li>
+<li>[ ] 립싱크용 입 모양과 눈썹 추가</li>
+</ul>
+<h2>한계와 문제 해결</h2>
+<p>이 서버는 도형·텍스트·레이어 단위 작업에 강하고, 패스를 자르거나 합치는 작업과 효과 세부 조정은 하지 못합니다.</p>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>원인과 대처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>패스 자르기, 패스파인더가 필요함</td>
+<td>해당 도구가 없음. 일러스트레이터에서 직접 작업</td>
+</tr>
+<tr>
+<td>드롭 섀도 값을 바꾸고 싶음</td>
+<td>그래픽 스타일 적용만 가능. 모양 패널에서 직접 수정</td>
+</tr>
+<tr>
+<td>호출이 응답 없이 4분 뒤 실패</td>
+<td>Claude Desktop의 승인 대기 창이나 일러스트레이터의 열린 대화상자를 확인. 계속되면 Claude Desktop 재시작</td>
+</tr>
+<tr>
+<td>엉뚱한 문서가 수정되거나 내보내짐</td>
+<td>서버는 항상 활성 문서에 작업함. 작업 중에는 문서 탭을 바꾸지 않기</td>
+</tr>
+<tr>
+<td>레이어로 이동이 실패</td>
+<td>대상 레이어가 없으면 이동이 거부됨. 레이어를 먼저 만들고 이동</td>
+</tr>
+<tr>
+<td><code>npx</code>를 찾지 못함</td>
+<td>Node.js 20 이상 설치 여부 확인. 버전 관리 도구로 설치했다면 <code>npx</code> 전체 경로를 <code>command</code>에 입력</td>
+</tr>
+</tbody>
+</table>
+<p>AI가 만든 결과는 틀릴 수 있으므로, 수업 자료나 납품용 파일은 사람이 마지막에 직접 확인해야 합니다.</p></main></body></html>

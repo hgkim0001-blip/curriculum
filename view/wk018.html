@@ -1,0 +1,84 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>3주차 박스오피스 월별 코랩</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">Google Colab에서 열려면 아래 [원본 내려받기] 후 colab.research.google.com → 업로드</p>
+<section class="nbmd"><h1>KOBIS 월간(7월) 누적 박스오피스 통계 (Google Colab)</h1>
+<p><strong>목표</strong>: KOBIS는 '월간' API가 따로 없어서, 일별 API를 31번 반복 호출한 뒤 영화별로 관객수를 계속 더해서 직접 '월간 집계'를 만듭니다.</p>
+<h2>실습 흐름</h2>
+<ol>
+<li>설정 + 31일치 반복 호출 + 집계 + TOP10 출력 + CSV 저장까지 한 셀에서 진행</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>에러가 나면 셀을 하나씩 다시 실행하지 말고, 메뉴에서 "런타임 → 모두 실행(Run all)"을 눌러 처음부터 다시 실행하세요.</strong>
+(중간 셀만 다시 실행하면 이전 실행 결과가 남아있어 오류 원인 파악이 더 어려워집니다.)</p>
+</blockquote>
+<p>이 CSV(<code>boxoffice_2026_07_monthly.csv</code>)는 다음 실습인 <strong>자동 팩트체킹(week3_factcheck_demo_colab.ipynb)</strong>에서 '정답 데이터'로 사용되니, 실행 후 꼭 다운로드해두세요.</p></section>
+<section class="nbmd"><h2>셀 1. 설정 + 31일치 반복 수집 + 집계 + 저장</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="n">KOBIS_KEY</span> <span class="o">=</span> <span class="s2">"여기에_발급받은_인증키_입력"</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">"http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json"</span>
+
+<span class="c1"># 1) 7월 1일부터 31일까지 날짜 목록 만들기</span>
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+
+<span class="n">date_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">current</span> <span class="o">=</span> <span class="n">start_date</span>
+<span class="k">while</span> <span class="n">current</span> <span class="o">&lt;=</span> <span class="n">end_date</span><span class="p">:</span>
+    <span class="n">date_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">"</span><span class="p">))</span>
+    <span class="n">current</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"조회할 날짜 수: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">date_list</span><span class="p">)</span><span class="si">}</span><span class="s2">일</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># 2) 영화별 누적 관객수/매출액을 저장할 딕셔너리 준비</span>
+<span class="c1">#    형태: {"영화제목": {"audience": 누적관객수, "sales": 누적매출액}}</span>
+<span class="n">movie_totals</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># 3) 날짜 하나씩(31번) 반복하면서 그날의 박스오피스(10개)를 또 반복 처리</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">date_str</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">date_list</span><span class="p">):</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"key"</span><span class="p">:</span> <span class="n">KOBIS_KEY</span><span class="p">,</span> <span class="s2">"targetDt"</span><span class="p">:</span> <span class="n">date_str</span><span class="p">}</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">daily_list</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"boxOfficeResult"</span><span class="p">][</span><span class="s2">"dailyBoxOfficeList"</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">movie</span> <span class="ow">in</span> <span class="n">daily_list</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"movieNm"</span><span class="p">]</span>
+        <span class="n">audience</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">movie</span><span class="p">[</span><span class="s2">"audiCnt"</span><span class="p">])</span>
+        <span class="n">sales</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">movie</span><span class="p">[</span><span class="s2">"salesAmt"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">movie_totals</span><span class="p">:</span>
+            <span class="n">movie_totals</span><span class="p">[</span><span class="n">title</span><span class="p">][</span><span class="s2">"audience"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">audience</span>
+            <span class="n">movie_totals</span><span class="p">[</span><span class="n">title</span><span class="p">][</span><span class="s2">"sales"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sales</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">movie_totals</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"audience"</span><span class="p">:</span> <span class="n">audience</span><span class="p">,</span> <span class="s2">"sales"</span><span class="p">:</span> <span class="n">sales</span><span class="p">}</span>
+
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># API 서버에 너무 빠르게 연속 요청하지 않도록(매너 있는 API 사용)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">date_list</span><span class="p">)</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">date_str</span><span class="si">}</span><span class="s2"> 처리 완료"</span><span class="p">)</span>
+
+<span class="c1"># 4) 전체 누적 관객수/매출액 합계</span>
+<span class="n">total_audience</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s2">"audience"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">movie_totals</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="n">total_sales</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s2">"sales"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">movie_totals</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<span class="c1"># 5) 관객수 많은 순 TOP10</span>
+<span class="n">top10</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">movie_totals</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">"audience"</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== 2026년 7월 총 누적 관객수: </span><span class="si">{</span><span class="n">total_audience</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">명 / 총 매출액: </span><span class="si">{</span><span class="n">total_sales</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">원 ===</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== 7월 박스오피스 TOP 10 (월간 누적 기준) ===</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top10</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">위 | </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2"> | 관객수 </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'audience'</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">명 | 매출액 </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'sales'</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">원"</span><span class="p">)</span>
+
+<span class="c1"># 6) CSV로 저장</span>
+<span class="n">csv_filename</span> <span class="o">=</span> <span class="s2">"boxoffice_2026_07_monthly.csv"</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s2">"순위"</span><span class="p">,</span> <span class="s2">"영화제목"</span><span class="p">,</span> <span class="s2">"7월 누적관객수"</span><span class="p">,</span> <span class="s2">"7월 누적매출액"</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top10</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">rank</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="s2">"audience"</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="s2">"sales"</span><span class="p">]])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">저장 완료: </span><span class="si">{</span><span class="n">csv_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"이 파일은 왼쪽 폴더 아이콘에서 다운로드해서, 다음 실습(자동 팩트체킹)에서 업로드해야 합니다!"</span><span class="p">)</span>
+
+<span class="c1"># from google.colab import files</span>
+<span class="c1"># files.download(csv_filename)</span>
+</pre></div>
+</section></main></body></html>

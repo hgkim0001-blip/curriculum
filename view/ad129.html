@@ -1,0 +1,234 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>프리미어 프로 2024 × Claude 무료 연결 가이드</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><h1>프리미어 프로 2024 × Claude 무료 연결 가이드 (Premiere MCP)</h1>
+<p>2026-09-30 · 김사부</p>
+<h2>개요</h2>
+<p>오픈소스 Premiere Pro MCP 서버를 쓰면 추가 비용 없이 Claude Desktop에서 자연어로 프리미어를 조작할 수 있다. 시퀀스 생성, 타임라인 편집, 이펙트·트랜지션, 키프레임, 자막, 마커, 오디오, 내보내기 등 170여 개 도구를 제공한다.</p>
+<p>이 문서는 <a href="https://github.com/antipaster/Adobe-Premiere-Pro-MCP">antipaster/Adobe-Premiere-Pro-MCP</a> 기준이며, <strong>한글 Windows + 프리미어 프로 2024 + 스토어판 Claude Desktop</strong> 환경에서 실제로 연결에 성공한 과정을 정리했다. README대로만 하면 이 환경에서는 세 군데에서 막히는데(설정 미반영, 패널 미표시, 그래픽 모듈 로드 실패), 3~5단계가 그 해결법이다.</p>
+<p>연결 구조는 다음 순서로 명령이 전달된다.</p>
+<ol>
+<li>Claude Desktop에 자연어로 요청</li>
+<li>내 PC의 MCP 서버(<code>dist\server.js</code>, Node.js)가 명령 수신</li>
+<li>WebSocket(포트 8097)으로 프리미어 안의 CEP 확장 패널(MCP Bridge)에 전달</li>
+<li>패널이 ExtendScript로 프리미어를 조작하고 결과를 돌려줌</li>
+</ol>
+<p>애프터 이펙트 MCP와 같은 원리다. 다만 에펙은 스크립트 패널(.jsx)을 쓰고, 프리미어는 CEP 확장 프로그램을 쓰기 때문에 '서명되지 않은 확장 허용' 설정이 추가로 필요하다. 두 MCP는 한 Claude Desktop에 함께 등록해 동시에 쓸 수 있다.</p>
+<h2>준비물 및 사전 백업</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>운영체제</td>
+<td>Windows</td>
+<td>이 저장소는 Windows 전용</td>
+</tr>
+<tr>
+<td>Premiere Pro</td>
+<td>2023 이상 (실습: 2024)</td>
+<td>2024는 4단계 수정 필요</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>18 이상 (실습: v24.20.0)</td>
+<td><code>node -v</code>로 확인</td>
+</tr>
+<tr>
+<td>Claude Desktop</td>
+<td>로그인된 상태</td>
+<td>웹 버전 불가</td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td>설정 파일·코드 수정용</td>
+<td>메모장도 가능</td>
+</tr>
+</tbody>
+</table>
+<p><strong>설치 전 백업 두 가지.</strong> 설치 프로그램(<code>install.bat</code>)은 Claude Desktop과 Claude Code의 설정 파일을 PowerShell로 다시 써서 저장한다. 이때 한글 경로가 들어 있으면 글자가 깨질 위험이 있으므로 미리 복사본을 만들어 둔다.</p>
+<ol>
+<li><strong>Claude Desktop 설정</strong>: 설정 &gt; 개발자 &gt; <strong>구성 편집</strong>으로 폴더를 열고 <code>claude_desktop_config.json</code>을 복사해 붙여넣는다. 스토어판의 실제 위치는 <code>C:\Users\&lt;사용자&gt;\AppData\Local\Packages\Claude_xxxxx\LocalCache\Roaming\Claude</code>이다.</li>
+<li><strong>Claude Code 설정</strong>: 탐색기 주소창에 <code>C:\Users\&lt;사용자&gt;</code>를 입력하고 <code>.claude.json</code>을 같은 방법으로 복사한다. 파일이 안 보이면 보기 &gt; 표시 &gt; 숨긴 항목을 켠다. 옆의 <code>.claude.json.backup</code>은 Claude Code가 수시로 덮어쓰는 자동 백업이라 믿고 쓰면 안 된다.</li>
+</ol>
+<h2>1단계. 다운로드 및 관리자 권한 명령 프롬프트</h2>
+<p><a href="https://github.com/antipaster/Adobe-Premiere-Pro-MCP">github.com/antipaster/Adobe-Premiere-Pro-MCP</a>에서 <strong>Code &gt; Download ZIP</strong>을 받아 한글·공백이 없는 경로에 푼다. 실습 위치는 <code>D:\prmcp\Adobe-Premiere-Pro-MCP-main</code>이다.</p>
+<p>설치 프로그램은 프리미어 확장 폴더에 이 폴더의 <code>cep</code>를 <strong>연결(junction)</strong> 형태로 걸어 둔다. 설치 후 폴더를 옮기거나 지우면 패널이 사라지므로 처음부터 계속 둘 자리에 푼다. 반대로 이 덕분에 4·5단계에서 원본 폴더의 파일만 고치면 프리미어에 바로 반영된다.</p>
+<p>프리미어를 완전히 종료한 뒤, 작업표시줄 검색에 <code>cmd</code> → "명령 프롬프트" 우클릭 → <strong>관리자 권한으로 실행</strong>. 창 제목 앞에 <strong>관리자:</strong>가 붙어 있어야 한다.</p>
+<pre><code>cd /d D:\prmcp\Adobe-Premiere-Pro-MCP-main
+install.bat
+</code></pre>
+<p><code>install.bat</code>을 입력하고 <strong>Enter를 누르면</strong> 곧바로 <code>=== Premiere Pro MCP Bridge Installer ===</code>가 출력된다. 화면이 비어 있다면 아직 Enter를 누르지 않은 것이다. 다운로드 폴더에 한글이 있으면 <code>cd</code> 경로가 달라지니 맞게 고친다.</p>
+<h2>2단계. install.bat 실행 결과 읽기</h2>
+<p>설치 프로그램은 순서대로 CEP 디버그 모드 켜기(서명되지 않은 확장 허용), 프리미어 확장 폴더 연결, <code>npm install</code>, 빌드, Claude 설정 추가를 진행한다. 위쪽 출력에서 세 줄이 <code>[OK]</code>인지 확인한다.</p>
+<ul>
+<li><code>[OK] Enabled CEP debug mode</code></li>
+<li><code>[OK] Created extension link at ...\com.mcp.premiere.bridge</code></li>
+<li><code>[OK] Dependencies installed</code></li>
+</ul>
+<p>빨간색 <code>9 vulnerabilities</code> 경고는 개발용 패키지의 일반적인 알림이다. <code>npm audit fix</code>는 버전을 바꿔 작동을 깨뜨릴 수 있으므로 실행하지 않는다.</p>
+<p>끝부분에 <code>Build complete</code>와 <code>Installation complete!</code>가 나오면 설치 자체는 성공이다.</p>
+<p><strong><code>[SKIP] premiere-pro already exists</code>의 의미.</strong> 설치 프로그램은 설정 파일 어디든 <code>premiere-pro</code>라는 글자가 있으면 건너뛴다. 이번 실습에서는 앞서 일반 권한 창에서 한 번 실행된 적이 있어 SKIP이 났다(<code>Removed existing extension link</code>, <code>up to date ... in 1s</code>가 그 흔적). 다시 실행해도 문제는 없다. 어느 경우든 스토어판 Claude라면 3단계를 직접 해야 한다.</p>
+<h2>3단계. Claude Desktop 설정 직접 추가 (스토어판)</h2>
+<p>설치 프로그램은 <code>C:\Users\&lt;사용자&gt;\AppData\Roaming\Claude</code>에 설정을 쓴다. 하지만 Microsoft Store에서 설치한 Claude Desktop은 <code>...\Packages\Claude_xxxxx\LocalCache\Roaming\Claude</code>의 파일을 읽기 때문에 자동 설정이 반영되지 않는다. Claude를 완전히 재시작해도 개발자 화면에 프리미어가 없다면 이 경우다.</p>
+<p>설정 &gt; 개발자 &gt; <strong>구성 편집</strong>으로 파일을 열고, 파일 끝의 <code>mcpServers</code> 부분을 아래처럼 바꾼다. 에펙 MCP가 이미 있다면 그 뒤에 나란히 추가하고, 에펙 항목의 닫는 <code>}</code> 뒤에 <strong>쉼표</strong>를 붙인다. 실행 파일은 <code>build</code>가 아니라 <code>dist\server.js</code>인 점에 주의한다.</p>
+<pre><code class="language-json">  &quot;mcpServers&quot;: {
+    &quot;AfterEffectsMCP&quot;: {
+      &quot;command&quot;: &quot;node&quot;,
+      &quot;args&quot;: [&quot;D:\\aemcp\\after-effects-mcp-main\\build\\index.js&quot;]
+    },
+    &quot;premiere-pro&quot;: {
+      &quot;command&quot;: &quot;node&quot;,
+      &quot;args&quot;: [&quot;D:\\prmcp\\Adobe-Premiere-Pro-MCP-main\\dist\\server.js&quot;]
+    }
+  }
+}
+</code></pre>
+<p><code>Ctrl+S</code>로 저장하고 VS Code 탭에 빨간 오류 표시가 없는지 확인한 뒤 Claude를 <strong>완전히</strong> 재시작한다.</p>
+<p><strong>'완전히 종료'란.</strong> Claude Desktop은 창의 X를 눌러도 작업표시줄 오른쪽 구석(시계 옆)에 숨어서 계속 실행된다. 시계 옆 ∧ 를 눌러 Claude 아이콘 우클릭 &gt; <strong>종료</strong>, 또는 <code>Ctrl+Shift+Esc</code> 작업 관리자에서 Claude <strong>작업 끝내기</strong> 후 다시 실행한다. 개발자 화면에 <code>premiere-pro</code>가 <strong>실행 중</strong>으로 뜨면 Claude 쪽은 완료다.</p>
+<h2>4단계. 프리미어 2024에서 패널이 안 보일 때</h2>
+<p><strong>증상:</strong> 프리미어를 재시작해도 <strong>창 &gt; 확장</strong> 메뉴에 MCP Bridge가 없다.</p>
+<p><strong>원인:</strong> 패널 설정 파일(<code>manifest.xml</code>)이 CEP 12 런타임을 요구하는데, 프리미어 2024는 버전에 따라 CEP 11 환경으로 동작해 조건에서 탈락한다. 패널이 실제로 쓰는 부품(CSInterface)은 v11이라 조건 숫자만 낮춰도 문제없다.</p>
+<p><strong>해결:</strong> 아래 파일을 VS Code(또는 메모장)로 연다.</p>
+<pre><code>D:\prmcp\Adobe-Premiere-Pro-MCP-main\cep\CSXS\manifest.xml
+</code></pre>
+<p><code>RequiredRuntime</code> 줄의 <code>12.0</code>을 <code>11.0</code>으로 바꾼다.</p>
+<pre><code class="language-xml">&lt;!-- 수정 전 --&gt;
+&lt;RequiredRuntime Name=&quot;CSXS&quot; Version=&quot;12.0&quot; /&gt;
+&lt;!-- 수정 후 --&gt;
+&lt;RequiredRuntime Name=&quot;CSXS&quot; Version=&quot;11.0&quot; /&gt;
+</code></pre>
+<p>저장 후 프리미어를 완전히 재시작하면 <strong>창 &gt; 확장 &gt; MCP Bridge</strong>가 나타난다. 프리미어 확장 폴더가 이 <code>cep</code> 폴더와 연결돼 있어 따로 복사할 필요는 없다.</p>
+<p>참고로 프리미어 2025 이후는 이 메뉴가 <strong>창 &gt; 확장(레거시)</strong>로 옮겨질 수 있다. 그래도 안 보이면 관리자 명령 프롬프트에서 다음을 실행하고 재시작한다(설치 프로그램이 11·12번에 한 것과 같은 설정을 13번에 추가).</p>
+<pre><code>reg add &quot;HKCU\Software\Adobe\CSXS.13&quot; /v PlayerDebugMode /t REG_SZ /d 1 /f
+</code></pre>
+<h2>5단계. graphics.jsx 로드 실패 해결 (한글 Windows)</h2>
+<p><strong>증상:</strong> 패널은 Connected인데 로그에 <code>Failed to load: graphics.jsx</code>가 있다. 나머지는 정상이지만 텍스트 그래픽, 틱톡 스타일 자막, MOGRT, 컬러 매트·블랙 비디오 등 그래픽 도구 18개가 작동하지 않는다.</p>
+<p><strong>원인:</strong> 13개 모듈 중 <code>graphics.jsx</code>에만 영문이 아닌 문자가 있다. 178번 줄 주석의 박스 그리기 문자 <code>─</code>다. 프리미어의 ExtendScript 엔진은 BOM 없는 파일을 Windows 기본 인코딩으로 읽는데, 한글 Windows에서는 그게 CP949(한국어)라 UTF-8 특수문자가 깨지면서 파일 전체를 불러오지 못한다. 제작자는 영문 Windows에서 테스트했기 때문에 드러나지 않은 문제다. 또한 180번 줄의 자막 템플릿 경로가 프리미어 2026으로 고정돼 있다.</p>
+<p><strong>해결:</strong> VS Code로 아래 파일을 연다.</p>
+<pre><code>D:\prmcp\Adobe-Premiere-Pro-MCP-main\cep\jsx\graphics.jsx
+</code></pre>
+<ol>
+<li><code>Ctrl+G</code> → <code>178</code>로 이동해 특수문자를 하이픈으로 바꾼다.</li>
+<li>바로 아래 180번 줄의 <code>2026</code>을 설치된 버전(<code>2024</code>)으로 바꾼다.</li>
+</ol>
+<pre><code class="language-js">/* --- TikTok-style caption tools --- */
+
+var _MOGRT_DIR = &quot;C:/Program Files/Adobe/Adobe Premiere Pro 2024/Essential Graphics/&quot;;
+</code></pre>
+<ol start="3">
+<li>저장 후 프리미어 재시작 → 로그에 <code>Loaded: graphics.jsx</code>와 <code>All JSX modules loaded</code> 확인.</li>
+</ol>
+<p>틱톡 자막 기능은 <code>Essential Graphics</code> 폴더의 <code>Basic Title.mogrt</code>, <code>Basic Lower Third.mogrt</code>와 <code>Titles</code> 하위의 <code>Bold / Classic / Modern / Film Title.mogrt</code>를 사용한다. 파일 이름이 다르면 해당 템플릿만 실패하므로 폴더에서 한 번 확인해 둔다(실습 환경에서는 모두 있었다).</p>
+<h2>6단계. 연결 확인과 테스트</h2>
+<p>실행 순서는 <strong>Claude Desktop 먼저 → 프리미어 → MCP Bridge 패널</strong>이다. 패널이 Claude 쪽 MCP 서버(포트 8097)에 접속하는 구조라, Claude가 꺼져 있으면 Disconnected가 된다. 이때는 Claude를 켜고 패널의 <strong>Reconnect</strong>를 누른다.</p>
+<p>패널에 <strong>Connected</strong>, 로그에 <code>All JSX modules loaded</code>와 <code>Connected to MCP server</code>가 보이면 준비 완료다. 패널은 작업하는 동안 계속 열어둔다. 처음에는 중요한 프로젝트 대신 복사본이나 빈 테스트 프로젝트를 연다.</p>
+<p>Claude Desktop 새 채팅에서 아래 순서로 입력하고, 도구 사용 권한 창이 뜨면 <strong>허용</strong>을 누른다.</p>
+<table>
+<thead>
+<tr>
+<th>순서</th>
+<th>입력 예시</th>
+<th>기대 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 연결 확인</td>
+<td>프리미어 연결 상태 확인해줘</td>
+<td>연결 상태와 프리미어 버전</td>
+</tr>
+<tr>
+<td>2. 프로젝트 조회</td>
+<td>지금 프로젝트에 있는 시퀀스랑 클립 목록 알려줘</td>
+<td>프로젝트 항목 목록</td>
+</tr>
+<tr>
+<td>3. 시퀀스 생성</td>
+<td>1920x1080 30fps 시퀀스 'TEST' 만들어줘</td>
+<td>프로젝트에 새 시퀀스</td>
+</tr>
+<tr>
+<td>4. 자막</td>
+<td>TEST 시퀀스에 '안녕하세요' 틱톡 스타일 자막을 0초부터 3초 동안 넣어줘</td>
+<td>비디오 트랙에 타이틀 클립</td>
+</tr>
+<tr>
+<td>5. 마커</td>
+<td>5초 지점에 마커 추가하고 '컷 포인트'라고 이름 붙여줘</td>
+<td>시퀀스 마커 생성</td>
+</tr>
+<tr>
+<td>6. 편집</td>
+<td>첫 번째 클립을 타임라인에 올리고 3초 지점에서 잘라줘</td>
+<td>클립 배치 및 분할</td>
+</tr>
+</tbody>
+</table>
+<p>에펙 MCP도 함께 연결해 두었다면 두 브리지 패널을 모두 열어둔 상태에서 연계 작업도 시도할 수 있다. 예: "에펙에서 타이틀 만들고 렌더해서 프리미어 TEST 시퀀스 맨 앞에 넣어줘."</p>
+<h2>문제 해결</h2>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>install.bat</code> 입력 후 화면이 비어 있음</td>
+<td>Enter를 누르지 않음</td>
+<td>Enter 후 첫 줄 출력 확인</td>
+</tr>
+<tr>
+<td><code>[FAIL] Could not create extension link</code></td>
+<td>권한 부족</td>
+<td>관리자 권한 명령 프롬프트로 재실행</td>
+</tr>
+<tr>
+<td>개발자 화면에 premiere-pro가 없음</td>
+<td>스토어판 Claude는 다른 위치의 설정을 읽음</td>
+<td>3단계대로 직접 추가 후 완전 재시작</td>
+</tr>
+<tr>
+<td>설정 파일에 빨간 오류 표시</td>
+<td>쉼표 누락, <code>\</code> 하나만 씀, 덩어리 2개</td>
+<td>3단계 예시와 비교</td>
+</tr>
+<tr>
+<td>창 &gt; 확장에 MCP Bridge 없음</td>
+<td>프리미어 2024의 CEP 버전 불일치</td>
+<td>4단계 manifest 수정</td>
+</tr>
+<tr>
+<td><code>Failed to load: graphics.jsx</code></td>
+<td>한글 Windows 인코딩</td>
+<td>5단계 특수문자 제거</td>
+</tr>
+<tr>
+<td>틱톡 자막 실패</td>
+<td>MOGRT 경로가 2026으로 고정</td>
+<td>5단계 경로를 설치 버전으로 수정</td>
+</tr>
+<tr>
+<td>패널이 Disconnected</td>
+<td>Claude Desktop이 꺼져 있거나 나중에 켬</td>
+<td>Claude 실행 후 Reconnect</td>
+</tr>
+<tr>
+<td>Claude Code가 설정 오류를 냄</td>
+<td>설치 프로그램이 <code>.claude.json</code>을 다시 씀</td>
+<td>미리 만든 복사본으로 되돌리기</td>
+</tr>
+</tbody>
+</table>
+<h2>수업 적용 메모</h2>
+<ul>
+<li>훈련생 PC가 한글 Windows라면 4·5단계 수정은 필수다. 수정한 <code>manifest.xml</code>과 <code>graphics.jsx</code>를 미리 배포하면 각자 고칠 필요가 없다.</li>
+<li>다운로드 폴더 위치를 모두 같게(예: <code>D:\prmcp</code>) 맞추면 설정 파일 예시를 그대로 쓸 수 있다.</li>
+<li>실습은 복사한 테스트 프로젝트로 한다. 개인이 만든 오픈소스이고 프리미어 안에서 스크립트를 실행하기 때문이다.</li>
+<li>이 도구에는 임의의 ExtendScript를 실행하는 기능도 있다. 버튼 메뉴에 없는 작업도 지시할 수 있지만, 결과를 한 단계씩 확인하며 진행하게 한다.</li>
+</ul></main></body></html>

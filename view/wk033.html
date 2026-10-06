@@ -1,0 +1,47 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>3주차 코랩 표준템플릿</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">Google Colab에서 열려면 아래 [원본 내려받기] 후 colab.research.google.com → 업로드</p>
+<section class="nbmd"><h1>[실습 제목] (Google Colab 표준 템플릿)</h1>
+<p><strong>목표</strong>: [이 실습에서 무엇을 수집/분석/시각화하는지 한두 문장으로]</p>
+<h2>실습 흐름</h2>
+<ol>
+<li>준비: (한글 폰트가 필요하면) 폰트 설치 + 라이브러리 임포트</li>
+<li>설정 + 수집: 인증키/설정값 입력부터 데이터 수집까지 한 셀에서</li>
+<li>결과 확인: 저장 + 시각화 + 요약</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>에러가 나면 셀을 하나씩 다시 실행하지 말고, 메뉴에서 "런타임 → 모두 실행(Run all)"을 눌러 처음부터 다시 실행하세요.</strong>
+(중간 셀만 다시 실행하면 이전 실행 결과가 남아있어 오류 원인 파악이 더 어려워집니다.)</p>
+</blockquote>
+<p>이 노트북은 매주 실습 노트북을 만들 때 쓰는 표준 뼈대입니다. 제목/목표/셀 내용만 그 주차에 맞게 바꿔서 쓰면 됩니다.</p></section>
+<section class="nbmd"><h2>셀 1. 준비 (그래프에 한글이 필요 없으면 이 셀은 생략 가능)</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># 코랩(리눅스) 환경에는 한글 폰트가 기본으로 없어서 나눔고딕을 설치합니다.</span>
+<span class="err">!</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">qq</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">fonts</span><span class="o">-</span><span class="n">nanum</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.font_manager</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fm</span>
+
+<span class="n">font_path</span> <span class="o">=</span> <span class="s2">"/usr/share/fonts/truetype/nanum/NanumGothic.ttf"</span>
+<span class="n">fm</span><span class="o">.</span><span class="n">fontManager</span><span class="o">.</span><span class="n">addfont</span><span class="p">(</span><span class="n">font_path</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s2">"font"</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">"NanumGothic"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">"axes.unicode_minus"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># 마이너스(-) 기호 깨짐 방지</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"폰트 준비 완료. (그래프 글자가 네모(ㅁ)로 깨지면 '런타임 &gt; 런타임 다시 시작' 후 전체 재실행)"</span><span class="p">)</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>셀 2. 설정 + 데이터 수집</h2>
+<p>(인증키/설정값 + 함수 정의 + 실제 수집을 이 셀 하나에 모두 작성하세요)</p></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># 예시 구조:</span>
+<span class="c1"># 1) 설정값 (인증키, 날짜, 대상 등)</span>
+<span class="c1"># 2) API 호출 / 함수 정의</span>
+<span class="c1"># 3) 실제 데이터 수집 (반복문 등)</span>
+<span class="c1"># 4) DataFrame으로 정리</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>셀 3. 결과 확인: 저장 + 시각화 + 요약</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="c1"># 예시 구조:</span>
+<span class="c1"># 1) CSV 저장</span>
+<span class="c1"># 2) 시각화 (필요시)</span>
+<span class="c1"># 3) 핵심 수치 요약 출력</span>
+</pre></div>
+</section>
+<section class="nbmd"><h2>부록 (선택): 문제 해결용 진단 셀</h2>
+<p>필요하면 여기에 debug=True 등 진단용 코드를 넣으세요.</p></section></main></body></html>

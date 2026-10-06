@@ -1,0 +1,633 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>make_audio</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">make_audio.py · 317줄</p><div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span></pre></div></td><td class="code"><div><pre><span></span><span class="sd">"""배경음악 + 효과음을 콜라주 영상에 입히기 (numpy만 사용).</span>
+
+<span class="sd">- BGM: flow_music.wav(Google Flow Music으로 만든 곡)가 있으면 그 곡을 편집해서 사용</span>
+<span class="sd">        · 곡 13.0초부터 시작 → 곡의 브레이크 후 풀밴드 진입(17.00초)이 첫 장면 전환(4.0초)에 맞는다</span>
+<span class="sd">        · 영상 약 23.7~25.7초(4박) 동안 본 구간이 곡의 아웃트로(166.30초~)로 박자 맞춰 디졸브된다</span>
+<span class="sd">      없으면 120BPM 합성 팝으로 대체</span>
+<span class="sd">- SFX: 장면 전환 종이 '휙', 종이 조각이 붙을 때 '톡', 연도 글자 '탁'</span>
+<span class="sd">출력: bgm.wav, car_history_collage_music.mp4</span>
+<span class="sd">"""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">wave</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">make_video_collage</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mv</span>
+
+<span class="n">HERE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">SR</span> <span class="o">=</span> <span class="mi">48000</span>
+<span class="n">FLOW_WAV</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"flow_music.wav"</span><span class="p">)</span>
+<span class="n">USE_FLOW</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">FLOW_WAV</span><span class="p">)</span>
+<span class="n">DUR</span> <span class="o">=</span> <span class="n">mv</span><span class="o">.</span><span class="n">DUR</span>
+<span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">SR</span> <span class="o">*</span> <span class="n">DUR</span><span class="p">)</span>
+<span class="n">BPM</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">BEAT</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">/</span> <span class="n">BPM</span>
+<span class="n">BAR</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">BEAT</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+
+<span class="c1"># ---------- DSP helpers ----------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""FFT 기반 필터: lo 이상 통과(하이패스), hi 이하 통과(로우패스)."""</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lo</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">*=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">lo</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">))</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hi</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">*=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">f</span> <span class="o">/</span> <span class="n">hi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">g</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span>
+    <span class="n">na</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">SR</span><span class="p">))</span>
+    <span class="n">e</span><span class="p">[:</span><span class="n">na</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">na</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">buf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">sig</span><span class="p">[:</span> <span class="n">j</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">gain</span>
+    <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pan</span><span class="p">))</span>
+    <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pan</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hz</span><span class="p">(</span><span class="n">midi</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">440</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">((</span><span class="n">midi</span> <span class="o">-</span> <span class="mi">69</span><span class="p">)</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
+
+
+<span class="c1"># ---------- instruments ----------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kick</span><span class="p">():</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="mi">45</span> <span class="o">+</span> <span class="mi">90</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.03</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">)</span>
+    <span class="n">click</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.3</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">((</span><span class="n">s</span> <span class="o">+</span> <span class="n">click</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.6</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">snare</span><span class="p">():</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">lo</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">9000</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">tone</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">190</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">noise</span> <span class="o">*</span> <span class="mf">0.8</span> <span class="o">+</span> <span class="n">tone</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">clap</span><span class="p">():</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">lo</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">6000</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">off</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.011</span><span class="p">,</span> <span class="mf">0.022</span><span class="p">]):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">off</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+        <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">base</span><span class="p">[:</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">,</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="mf">0.012</span> <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.09</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="mf">0.8</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hat</span><span class="p">(</span><span class="n">open_</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mf">0.25</span> <span class="k">if</span> <span class="n">open_</span> <span class="k">else</span> <span class="mf">0.06</span><span class="p">)</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filt</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">lo</span><span class="o">=</span><span class="mi">7000</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="mf">0.12</span> <span class="k">if</span> <span class="n">open_</span> <span class="k">else</span> <span class="mf">0.02</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">bass</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">hz</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">k</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>  <span class="c1"># 톱니파 근사</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">700</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="n">length</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">epiano</span><span class="p">(</span><span class="n">notes</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">hz</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.35</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.08</span><span class="p">)</span>
+              <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">3.01</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.04</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">marimba</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">hz</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.22</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">3.99</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.03</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">glock</span><span class="p">(</span><span class="n">note</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.2</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">hz</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">2.76</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.15</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span> <span class="o">/</span> <span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="c1"># ---------- SFX ----------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">whoosh</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""찢은 종이가 스쳐 지나가는 소리: 대역이 움직이는 노이즈 + 종이 바스락."""</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">1800</span><span class="p">)</span>
+    <span class="n">hi_</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="mi">2500</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">9000</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">mix</span> <span class="o">=</span> <span class="n">lo</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">hi_</span> <span class="o">*</span> <span class="n">t</span>  <span class="c1"># 대역이 위로 쓸려 올라가는 느낌</span>
+    <span class="n">crackle</span> <span class="o">=</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.004</span><span class="p">)</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">crackle</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">crackle</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mix</span> <span class="o">*</span> <span class="n">shape</span> <span class="o">+</span> <span class="n">crackle</span> <span class="o">*</span> <span class="n">shape</span> <span class="o">*</span> <span class="mf">0.6</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.9</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">paper_pop</span><span class="p">(</span><span class="n">pitch</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.12</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">thump</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">160</span> <span class="o">*</span> <span class="n">pitch</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)</span>
+    <span class="n">snap</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">lo</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">thump</span> <span class="o">*</span> <span class="mf">0.7</span> <span class="o">+</span> <span class="n">snap</span> <span class="o">*</span> <span class="mf">0.6</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">stamp</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""연도 글자가 붙을 때: 짧고 단단한 '탁'."""</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">body</span> <span class="o">*</span> <span class="mf">0.6</span> <span class="o">+</span> <span class="n">filt</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">lo</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span> <span class="o">*</span> <span class="n">env</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.0003</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+
+<span class="c1"># ---------- music ----------</span>
+<span class="n">CHORDS</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># (베이스 루트, 코드 구성음)  C  Am  F  G</span>
+    <span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">72</span><span class="p">]),</span>
+    <span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="p">[</span><span class="mi">57</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">69</span><span class="p">]),</span>
+    <span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="p">[</span><span class="mi">57</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">69</span><span class="p">]),</span>
+    <span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="p">[</span><span class="mi">59</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">71</span><span class="p">]),</span>
+<span class="p">]</span>
+<span class="n">MELODY</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># 마디별 (박 오프셋, 음) — C 펜타토닉 모티프</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">76</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">79</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">76</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">74</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">72</span><span class="p">)],</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">72</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">76</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">72</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">69</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">67</span><span class="p">)],</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">69</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">72</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">77</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">76</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">74</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">72</span><span class="p">)],</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">74</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">76</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">79</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">81</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">79</span><span class="p">),</span> <span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">76</span><span class="p">)],</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">():</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">n_bars</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">DUR</span> <span class="o">/</span> <span class="n">BAR</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bars</span><span class="p">):</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">BAR</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">chord</span> <span class="o">=</span> <span class="n">CHORDS</span><span class="p">[</span><span class="n">b</span> <span class="o">%</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="n">intro</span> <span class="o">=</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">1</span>                      <span class="c1"># 0~2초: 마림바 + EP만</span>
+        <span class="n">drums</span> <span class="o">=</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">t0</span> <span class="o">&lt;</span> <span class="n">DUR</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="c1"># 드럼</span>
+        <span class="k">if</span> <span class="n">drums</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">beat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">tb</span> <span class="o">=</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">beat</span> <span class="o">*</span> <span class="n">BEAT</span>
+                <span class="k">if</span> <span class="n">beat</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">beat</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">kick</span><span class="p">(),</span> <span class="n">tb</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">BEAT</span> <span class="k">if</span> <span class="n">beat</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.9</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">beat</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">snare</span><span class="p">(),</span> <span class="n">tb</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)</span>
+                    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">clap</span><span class="p">(),</span> <span class="n">tb</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">hat</span><span class="p">(</span><span class="n">open_</span><span class="o">=</span><span class="p">(</span><span class="n">e</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">beat</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">tb</span> <span class="o">+</span> <span class="n">e</span> <span class="o">*</span> <span class="n">BEAT</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.4</span> <span class="k">if</span> <span class="n">e</span> <span class="k">else</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">)</span>
+            <span class="c1"># 베이스: 8분음표 루트-옥타브 바운스</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">intro</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+                    <span class="n">note</span> <span class="o">=</span> <span class="n">root</span> <span class="o">+</span> <span class="p">(</span><span class="mi">12</span> <span class="k">if</span> <span class="n">e</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">bass</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="n">BEAT</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">),</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">e</span> <span class="o">*</span> <span class="n">BEAT</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.42</span><span class="p">)</span>
+        <span class="c1"># EP 스탭: 오프비트</span>
+        <span class="k">for</span> <span class="n">beat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">epiano</span><span class="p">(</span><span class="n">chord</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">beat</span> <span class="o">*</span> <span class="n">BEAT</span> <span class="o">+</span> <span class="n">BEAT</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">)</span>
+        <span class="c1"># 마림바 멜로디</span>
+        <span class="k">for</span> <span class="n">off</span><span class="p">,</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">MELODY</span><span class="p">[</span><span class="n">b</span> <span class="o">%</span> <span class="mi">4</span><span class="p">]:</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">marimba</span><span class="p">(</span><span class="n">note</span><span class="p">),</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">off</span> <span class="o">*</span> <span class="n">BEAT</span><span class="p">,</span> <span class="mf">0.28</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">intro</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chord</span><span class="p">):</span>  <span class="c1"># 인트로 아르페지오</span>
+                <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">marimba</span><span class="p">(</span><span class="n">note</span> <span class="o">+</span> <span class="mi">12</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">BEAT</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+    <span class="c1"># 엔딩: 마지막 화음 한 번 크게</span>
+    <span class="n">end_t</span> <span class="o">=</span> <span class="n">DUR</span> <span class="o">-</span> <span class="mf">1.4</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">epiano</span><span class="p">([</span><span class="mi">48</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="mf">1.4</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">end_t</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">glock</span><span class="p">(</span><span class="mi">84</span><span class="p">),</span> <span class="n">end_t</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
+    <span class="c1"># LP판 잡음(종이 질감)</span>
+    <span class="n">crackle</span> <span class="o">=</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0015</span><span class="p">)</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">hiss</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">lo</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.012</span>
+    <span class="n">mus</span> <span class="o">+=</span> <span class="p">(</span><span class="n">filt</span><span class="p">(</span><span class="n">crackle</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="mi">1500</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span> <span class="o">+</span> <span class="n">hiss</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="c1"># 시작/끝 페이드</span>
+    <span class="n">fade</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">fi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">fade</span><span class="p">[:</span><span class="n">fi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fi</span><span class="p">)</span>
+    <span class="n">fo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.2</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">fade</span><span class="p">[</span><span class="o">-</span><span class="n">fo</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fo</span><span class="p">)</span> <span class="o">**</span> <span class="mf">1.5</span>
+    <span class="k">return</span> <span class="n">mus</span> <span class="o">*</span> <span class="n">fade</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sfx_track</span><span class="p">():</span>
+    <span class="n">sfx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mv</span><span class="o">.</span><span class="n">SCENES</span><span class="p">:</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"kind"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"title"</span><span class="p">:</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">0.8</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">)</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">1.3</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="c1"># 장면 전환 휙 (세 장의 시트)</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">whoosh</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">st</span> <span class="o">-</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">whoosh</span><span class="p">(</span><span class="mf">0.8</span><span class="p">),</span> <span class="n">st</span> <span class="o">-</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">USE_FLOW</span><span class="p">:</span>  <span class="c1"># Flow 곡과는 음정이 부딪힐 수 있어 합성 BGM일 때만</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">glock</span><span class="p">(</span><span class="mi">84</span> <span class="o">+</span> <span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">SCENES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">)</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">0.8</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># 사진 컷아웃</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])):</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">stamp</span><span class="p">(),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.25</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">)</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">0.77</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">)</span>   <span class="c1"># 제목</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">1.2</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">1.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">)</span>   <span class="c1"># 부제</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">sfx</span><span class="p">,</span> <span class="n">paper_pop</span><span class="p">(</span><span class="mf">1.5</span><span class="p">),</span> <span class="n">st</span> <span class="o">+</span> <span class="mf">1.37</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">)</span>   <span class="c1"># 태그</span>
+    <span class="k">return</span> <span class="n">sfx</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">flow_music</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Flow Music 곡에서 30초를 편집: [본 구간] ⟶ 박자 맞춘 디졸브(크로스페이드) ⟶ [아웃트로]."""</span>
+    <span class="k">with</span> <span class="n">wave</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">FLOW_WAV</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">w</span><span class="o">.</span><span class="n">getframerate</span><span class="p">()</span> <span class="o">==</span> <span class="n">SR</span> <span class="ow">and</span> <span class="n">w</span><span class="o">.</span><span class="n">getsampwidth</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">readframes</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">getnframes</span><span class="p">()),</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">getnchannels</span><span class="p">())</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">32768</span>
+    <span class="n">beat</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">/</span> <span class="mf">121.82</span>                      <span class="c1"># 곡 17~40초 onset에 맞춘 템포</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mf">17.00</span> <span class="o">-</span> <span class="mf">4.0</span>                    <span class="c1"># 곡 17.00s(풀밴드 진입) ↔ 영상 4.0s(첫 장면 전환)</span>
+    <span class="n">hit_v</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">+</span> <span class="mi">42</span> <span class="o">*</span> <span class="n">beat</span>                 <span class="c1"># 아웃트로 첫 타격이 놓일 박(영상 ≈24.69s)</span>
+    <span class="n">out_hit</span> <span class="o">=</span> <span class="mf">166.30</span>                        <span class="c1"># 곡의 아웃트로 첫 타격</span>
+    <span class="n">xf0</span><span class="p">,</span> <span class="n">xf1</span> <span class="o">=</span> <span class="n">hit_v</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beat</span><span class="p">,</span> <span class="n">hit_v</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beat</span>   <span class="c1"># 디졸브 구간: 4박(영상 ≈23.7~25.7s)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">take</span><span class="p">(</span><span class="n">song_t0</span><span class="p">,</span> <span class="n">vid_t0</span><span class="p">,</span> <span class="n">vid_t1</span><span class="p">):</span>
+        <span class="n">i0</span><span class="p">,</span> <span class="n">j0</span><span class="p">,</span> <span class="n">j1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">song_t0</span> <span class="o">*</span> <span class="n">SR</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">vid_t0</span> <span class="o">*</span> <span class="n">SR</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">vid_t1</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">j0</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="n">i0</span><span class="p">:</span><span class="n">i0</span> <span class="o">+</span> <span class="p">(</span><span class="n">j1</span> <span class="o">-</span> <span class="n">j0</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">xfade_curve</span><span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""xf0~xf1 구간 equal-power 곡선 (out=True면 1→0, False면 0→1)."""</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">)</span> <span class="o">/</span> <span class="n">SR</span> <span class="o">-</span> <span class="n">xf0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">xf1</span> <span class="o">-</span> <span class="n">xf0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">out</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="c1"># 본 구간: 처음부터 디졸브 끝까지 재생, 디졸브 구간에서 서서히 사라진다</span>
+    <span class="n">j0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="n">take</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">xf1</span><span class="p">)</span>
+    <span class="n">g1</span> <span class="o">=</span> <span class="n">xfade_curve</span><span class="p">(</span><span class="n">j0</span><span class="p">,</span> <span class="n">j0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">g1</span><span class="p">[:</span><span class="n">fi</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fi</span><span class="p">)</span>
+    <span class="n">mus</span><span class="p">[</span><span class="n">j0</span><span class="p">:</span><span class="n">j0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">s1</span> <span class="o">*</span> <span class="n">g1</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># 아웃트로: 같은 박자 격자로 겹쳐 들어오며 서서히 커진다</span>
+    <span class="n">j0</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">take</span><span class="p">(</span><span class="n">out_hit</span> <span class="o">-</span> <span class="p">(</span><span class="n">hit_v</span> <span class="o">-</span> <span class="n">xf0</span><span class="p">),</span> <span class="n">xf0</span><span class="p">,</span> <span class="n">DUR</span><span class="p">)</span>
+    <span class="n">g2</span> <span class="o">=</span> <span class="n">xfade_curve</span><span class="p">(</span><span class="n">j0</span><span class="p">,</span> <span class="n">j0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s2</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">fo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">SR</span><span class="p">)</span>
+    <span class="n">g2</span><span class="p">[</span><span class="o">-</span><span class="n">fo</span><span class="p">:]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fo</span><span class="p">)</span> <span class="o">**</span> <span class="mf">1.5</span>
+    <span class="n">mus</span><span class="p">[</span><span class="n">j0</span><span class="p">:</span><span class="n">j0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s2</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">s2</span> <span class="o">*</span> <span class="n">g2</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">mus</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mus</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">sfx</span> <span class="o">=</span> <span class="n">sfx_track</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">USE_FLOW</span><span class="p">:</span>
+        <span class="n">mix</span> <span class="o">=</span> <span class="n">flow_music</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.85</span> <span class="o">+</span> <span class="n">sfx</span> <span class="o">*</span> <span class="mf">0.45</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mix</span> <span class="o">=</span> <span class="n">compose</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.8</span> <span class="o">+</span> <span class="n">sfx</span> <span class="o">*</span> <span class="mf">0.9</span>
+    <span class="n">mix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">mix</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">1.1</span><span class="p">)</span>  <span class="c1"># 부드러운 리미터</span>
+    <span class="n">mix</span> <span class="o">*=</span> <span class="mf">0.89</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mix</span><span class="p">))</span>       <span class="c1"># -1 dBFS</span>
+    <span class="n">wav_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"bgm.wav"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">wave</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">wav_path</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">setnchannels</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">setsampwidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">setframerate</span><span class="p">(</span><span class="n">SR</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">writeframes</span><span class="p">((</span><span class="n">mix</span> <span class="o">*</span> <span class="mi">32767</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"saved"</span><span class="p">,</span> <span class="n">wav_path</span><span class="p">)</span>
+
+    <span class="n">video</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"car_history_collage.mp4"</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"car_history_collage_music.mp4"</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">"ffmpeg"</span><span class="p">),</span> <span class="s2">"-y"</span><span class="p">,</span> <span class="s2">"-loglevel"</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">,</span> <span class="s2">"-i"</span><span class="p">,</span> <span class="n">video</span><span class="p">,</span> <span class="s2">"-i"</span><span class="p">,</span> <span class="n">wav_path</span><span class="p">,</span>
+                    <span class="s2">"-map"</span><span class="p">,</span> <span class="s2">"0:v"</span><span class="p">,</span> <span class="s2">"-map"</span><span class="p">,</span> <span class="s2">"1:a"</span><span class="p">,</span> <span class="s2">"-c:v"</span><span class="p">,</span> <span class="s2">"copy"</span><span class="p">,</span> <span class="s2">"-c:a"</span><span class="p">,</span> <span class="s2">"aac"</span><span class="p">,</span> <span class="s2">"-b:a"</span><span class="p">,</span> <span class="s2">"192k"</span><span class="p">,</span>
+                    <span class="s2">"-shortest"</span><span class="p">,</span> <span class="s2">"-movflags"</span><span class="p">,</span> <span class="s2">"+faststart"</span><span class="p">,</span> <span class="n">out</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"saved"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div></td></tr></table></div>
+</main></body></html>

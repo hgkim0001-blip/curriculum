@@ -1,0 +1,365 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>모션패턴_분석_VOX_Typography</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><h1>Vox Style Typography — 모션 패턴 분석</h1>
+<ul>
+<li>분석 대상: <code>59807677_vox-style-typography_by_nuclear_motion_preview.mp4</code></li>
+<li>영상 정보: 1920×1080, 29.97fps, 22.4초, 670프레임</li>
+<li>분석 방법: ffmpeg 장면 전환 검출, 프레임 간 변화량 측정(움직임 곡선·정지 구간 파악), 5프레임 간격 콘택트 시트, 주요 구간 프레임별 상세 시트</li>
+<li>근거 이미지: <code>분석자료/</code> 폴더</li>
+<li><code>sheet_01~06.png</code>: 5프레임 간격 전체 흐름. 칸 번호 × 5 = 원본 프레임 번호</li>
+<li><code>detail_01~03.png</code>: 등장, 슬라이드, 줌 구간을 프레임 단위로 본 시트</li>
+</ul>
+<hr />
+<h2>1. 핵심 요약 (이 5가지만 지키면 이 스타일이 나온다)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>원칙</th>
+<th>수치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>12fps 스텝 애니메이션</strong>: 영상은 29.97fps지만 움직임은 3-2-3-2 프레임마다 한 번씩 바뀐다</td>
+<td>Posterize Time <strong>12fps</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>빠르게 들어오고 천천히 멈춘다</strong>: 첫 0.2초에 이동의 대부분을 끝내고, 나머지는 길게 감속</td>
+<td>Ease-out (Expo 계열), 0.6~1.1초</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>움직이는 동안에는 흐리다</strong>: 빠른 이동에는 모션 블러, 등장·정착할 때는 흐림에서 선명으로</td>
+<td>등장 블러 0.2~0.4초</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>빨간 손그림 한 가지만 강조색으로</strong>: 동그라미, 화살표, 밑줄, 취소선이 그려지듯 나타난다</td>
+<td>선 그리기 0.4~0.6초</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>짧게 만들고 길게 멈춘다</strong>: 각 섹션은 약 1초 동안 요소를 쌓고, 1~2초 멈춘 뒤 <strong>하드컷</strong></td>
+<td>섹션 2.6~5초</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. 비주얼 시스템</h2>
+<table>
+<thead>
+<tr>
+<th>요소</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>배경</td>
+<td>밝은 회백색 종이 + <strong>가는 회색 모눈(그리드)</strong>. 섹션이 바뀔 때 요소 없이 빈 모눈만 1~3프레임 보인다</td>
+</tr>
+<tr>
+<td>사진</td>
+<td>흑백 또는 세피아 빈티지 사진. <strong>흰 톱니 테두리(deckled edge)</strong>, 부드러운 그림자, 하단 캡션(타자기체)</td>
+</tr>
+<tr>
+<td>컷아웃</td>
+<td>인물이나 신문을 배경 없이 오려서 배치하고, 여러 장을 겹쳐 콜라주로 만든다</td>
+</tr>
+<tr>
+<td>제목</td>
+<td>명조(Serif, Times 계열) 검정. 핵심 단어만 Bold</td>
+</tr>
+<tr>
+<td>본문·캡션</td>
+<td>타자기체(Courier 계열) 작은 글씨, 신문 본문은 명조 단락</td>
+</tr>
+<tr>
+<td>강조색</td>
+<td><strong>빨강 하나만</strong> 사용: 손그림 타원, 곡선 화살표, 밑줄, 취소선</td>
+</tr>
+<tr>
+<td>질감</td>
+<td>필름 그레인, 종이 질감. 정지 구간에도 프레임마다 미세한 노이즈가 있어 화면이 완전히 멈춰 보이지 않는다</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3. 섹션 구성과 타임라인</h2>
+<table>
+<thead>
+<tr>
+<th>섹션</th>
+<th>시간(초)</th>
+<th>프레임</th>
+<th>내용</th>
+<th>등장 → 쌓기 → 정지 → 전환</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>0.0–2.6</td>
+<td>0–78</td>
+<td>신문 + "What is information?"</td>
+<td>신문 휙 등장 → 단어 단위 타이핑 → 빨간 타원·화살표 → 1.1초 정지 → <strong>컷</strong></td>
+</tr>
+<tr>
+<td>S2</td>
+<td>2.6–6.2</td>
+<td>79–185</td>
+<td>TOP SECRET 콜라주</td>
+<td>사진·문서가 사방에서 팝인 → 단어 순서대로 표시 → 빨간 원 여러 개 → 카메라 줌아웃 → <strong>컷</strong></td>
+</tr>
+<tr>
+<td>S3</td>
+<td>6.2–10.3</td>
+<td>186–307</td>
+<td>"Add media" + 사진 카드</td>
+<td>텍스트가 흐림에서 선명으로 → 카드가 오른쪽에서 밀고 들어오며 텍스트를 덮음 → 캡션 타원 → <strong>사진 속으로 줌인</strong></td>
+</tr>
+<tr>
+<td>S4</td>
+<td>10.3–13.1</td>
+<td>308–393</td>
+<td>Biography of People</td>
+<td>전체 화면 사진에서 <strong>줌아웃</strong>해 콜라주로 → 제목 타이핑 → 본문 타원·화살표 → 1.3초 정지 → <strong>컷</strong></td>
+</tr>
+<tr>
+<td>S5</td>
+<td>13.1–17.0</td>
+<td>394–510</td>
+<td>인물 + 인용문</td>
+<td>인물 컷아웃이 오른쪽에서 등장 → 인용문 단어 단위 표시 → 키워드 2개에 타원 → 2초 정지 → <strong>컷</strong></td>
+</tr>
+<tr>
+<td>S6</td>
+<td>17.0–22.4</td>
+<td>511–669</td>
+<td>신문 기사</td>
+<td>기사가 흐림에서 선명으로 정착 → 취소선·타원 그리기 → <strong>빠른 줌 푸시인</strong>으로 강조 구절 확대 → 2.2초 정지(엔딩)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>리듬:</strong> 컷 → 0.2~0.3초 뒤 첫 요소 등장 → 약 1초 동안 쌓기 → 1~2초 정지(읽는 시간) → 컷</p>
+<hr />
+<h2>4. 모션 패턴 카탈로그</h2>
+<p>측정한 프레임 간 변화량 곡선을 근거로 정리했습니다. 프레임은 29.97fps 기준입니다.</p>
+<h3>M1. Whip-In (휙 날아 들어오기) — S1 신문, S5 인물</h3>
+<ul>
+<li><strong>동작:</strong> 화면 밖(아래 또는 옆)에서 빠르게 날아와 약간 기울어진 채 멈춘다.</li>
+<li><strong>길이:</strong> 이동 약 0.3초(8~10프레임), 정착과 초점 맞추기까지 약 1초.</li>
+<li><strong>곡선:</strong> 변화량 14.7 → 22.5 → 24.1 → 18.7 → 13.3 → 9.3 → … → 1.6. 첫 3스텝이 최대이고 이후 지수적으로 감소하는 <strong>Expo Out</strong>.</li>
+<li><strong>효과:</strong> 이동 방향으로 <strong>강한 모션 블러</strong>(detail_01의 0.2~0.4초 칸). 멈춘 뒤에도 0.2~0.3초 동안 <strong>살짝 흐리다가 선명해진다</strong>.</li>
+<li><strong>After Effects:</strong> Position Expo Out + 회전 약 −5°에서 0° + CC Force Motion Blur 또는 Pixel Motion Blur, Camera Lens Blur 반경 8에서 0.</li>
+</ul>
+<h3>M2. 단어 단위 타이핑 (Word Pop) — 모든 제목과 인용문</h3>
+<ul>
+<li><strong>동작:</strong> 글자가 아니라 <strong>단어 단위로</strong> 추가된다("What" → "What is" → "What is information?").</li>
+<li><strong>간격:</strong> 단어 하나에 약 5~8프레임(0.17~0.27초). 긴 문장은 1~3단어씩 묶어서 표시.</li>
+<li><strong>효과:</strong> 새 단어는 흐림에서 선명으로 들어오고(약 4프레임), 약간 위로 떠오르는 느낌이다.</li>
+<li><strong>After Effects:</strong> Text Animator에서 Range Selector를 Words 단위로, Opacity와 Blur 적용.</li>
+</ul>
+<h3>M3. 빨간 손그림 선 그리기 (Write-On Annotation) — 모든 섹션</h3>
+<ul>
+<li><strong>종류:</strong> 타원 동그라미, 곡선 화살표(끝에 화살촉), 밑줄, 취소선.</li>
+<li><strong>동작:</strong> 선이 한쪽 끝에서부터 그려진다. 타원은 <strong>시작점과 끝점이 겹치지 않고 튀어나오게</strong> 그려서 손으로 그린 느낌을 낸다.</li>
+<li><strong>길이:</strong> 타원 약 0.4~0.6초. 화살표는 타원이 끝나자마자 이어서 약 0.3초.</li>
+<li><strong>순서:</strong> 텍스트가 다 표시된 <strong>직후</strong> 시작한다(0.1~0.2초 간격).</li>
+<li><strong>After Effects:</strong> Shape Layer의 Trim Paths(End 0→100%, Ease Out)와 Stroke Taper.</li>
+</ul>
+<h3>M4. Slide Push (밀고 들어오기) — S3 사진 카드</h3>
+<ul>
+<li><strong>동작:</strong> 카드가 화면 오른쪽 밖에서 수평으로 들어와 기존 텍스트를 <strong>덮는다</strong>. 텍스트는 가려진 뒤 사라진다.</li>
+<li><strong>길이:</strong> 약 0.7초(detail_02). 앞쪽 0.2초에 이동의 약 70%를 끝낸다.</li>
+<li><strong>곡선:</strong> Expo Out.</li>
+</ul>
+<h3>M5. Zoom-Through 매치컷 (사진 속으로 들어갔다 나오기) — S3에서 S4로</h3>
+<ul>
+<li><strong>동작:</strong> 사진 카드로 카메라가 <strong>줌인</strong>해 사진이 화면을 가득 채운다(약 0.8초). 그 순간 다음 섹션의 전체 화면 사진으로 <strong>하드컷</strong>하고, 이어서 <strong>줌아웃</strong>해 그 사진이 콜라주 속 한 장이 된다.</li>
+<li><strong>곡선:</strong> 줌인의 변화량은 2 → 10 → 31 → <strong>58</strong> → 49 → 40 → 28 → 18 → 12 → 7 → 3.6(짧게 가속한 뒤 길게 감속). 줌아웃도 같은 모양.</li>
+<li><strong>포인트:</strong> 두 장면을 "가득 찬 사진"으로 연결하므로 컷이 튀지 않는다.</li>
+</ul>
+<h3>M6. Snap Zoom Push-In (빠른 확대 강조) — S6 엔딩</h3>
+<ul>
+<li><strong>동작:</strong> 문서 전체가 약 2배로 <strong>거의 일정한 속도로</strong> 확대되다가 <strong>툭 멈춘다</strong>.</li>
+<li><strong>길이:</strong> 약 0.55초(16프레임).</li>
+<li><strong>곡선:</strong> 변화량 44 → 50 → 46 → 46 → 47 → 41 → 33 → <strong>7</strong>. 선형에 가깝고 마지막 1~2스텝에서 급정지하는 Linear에 짧은 Ease Out.</li>
+<li><strong>용도:</strong> 빨간 표시가 있는 핵심 구절을 화면 중앙에 크게 보여 주는 마무리.</li>
+</ul>
+<h3>M7. 카메라 줌아웃과 흐림 (Pull-Back Defocus) — S2 후반</h3>
+<ul>
+<li><strong>동작:</strong> 콜라주 전체가 살짝 작아지며(약 90%) 멀어지는데, 움직이는 동안 전체가 흐려졌다가 멈추면 선명해진다.</li>
+<li><strong>곡선:</strong> 변화량 4 → 9 → 15 → 25 → <strong>33</strong> → 25 → 16 → 10 → 6.5 → 4.5. 앞쪽 3분의 1 지점에서 최고 속도가 되는 <strong>Ease In-Out</strong>, 약 1초.</li>
+</ul>
+<h3>M8. 팝인 콜라주 (Scatter Pop-In) — S2</h3>
+<ul>
+<li><strong>동작:</strong> 사진, 문서 조각, 텍스트 블록이 <strong>화면 가장자리에서</strong> 순서대로 튀어 들어온다. 각 요소는 약 0.2초 간격.</li>
+<li>각 요소는 M1(Whip-In)의 짧은 버전이다: 모션 블러와 Expo Out, 약 0.3초.</li>
+</ul>
+<h3>M9. 하드컷과 빈 모눈 (Clean Cut) — 섹션 사이</h3>
+<ul>
+<li>페이드나 와이프 없이 <strong>컷</strong>으로 넘어간다. 새 섹션의 첫 2~9프레임은 <strong>빈 모눈 배경</strong>이고, 그 뒤 첫 요소가 들어온다.</li>
+<li>컷 지점: 2.6, 6.2, 10.3, 13.1, 17.0초</li>
+</ul>
+<hr />
+<h2>5. 타이밍 치트시트 (30fps 기준)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>프레임</th>
+<th>초</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>스텝 간격 (12fps)</td>
+<td>2.5</td>
+<td>0.083</td>
+</tr>
+<tr>
+<td>Whip-In 이동</td>
+<td>8–10</td>
+<td>0.27–0.33</td>
+</tr>
+<tr>
+<td>등장 블러에서 선명까지</td>
+<td>6–12</td>
+<td>0.2–0.4</td>
+</tr>
+<tr>
+<td>단어 하나 표시 간격</td>
+<td>5–8</td>
+<td>0.17–0.27</td>
+</tr>
+<tr>
+<td>빨간 타원 그리기</td>
+<td>12–18</td>
+<td>0.4–0.6</td>
+</tr>
+<tr>
+<td>화살표 그리기</td>
+<td>8–10</td>
+<td>0.27–0.33</td>
+</tr>
+<tr>
+<td>요소 사이 간격(스태거)</td>
+<td>5–7</td>
+<td>0.17–0.23</td>
+</tr>
+<tr>
+<td>쌓기 구간 전체</td>
+<td>30–40</td>
+<td>1.0–1.3</td>
+</tr>
+<tr>
+<td>정지(읽기) 구간</td>
+<td>30–65</td>
+<td>1.0–2.2</td>
+</tr>
+<tr>
+<td>줌인·줌아웃 전환</td>
+<td>24–28</td>
+<td>0.8–0.9</td>
+</tr>
+<tr>
+<td>스냅 줌</td>
+<td>16</td>
+<td>0.55</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>6. 우리 파이프라인(Python)에 적용하는 방법</h2>
+<p>지금까지 만든 스크립트(<code>make_video_vox_v2.py</code> 등)에 바로 붙일 수 있는 형태로 정리했습니다.</p>
+<pre><code class="language-python">import math
+from PIL import Image, ImageDraw, ImageFilter
+
+FPS, STEP_FPS = 30, 12
+
+def step_time(t):                      # (1) 12fps 스텝: 모든 애니메이션의 t를 이 값으로 대체
+    return math.floor(t * STEP_FPS) / STEP_FPS
+
+def expo_out(x):                       # (2) M1·M4·M5: 빠르게 들어오고 길게 감속
+    x = min(max(x, 0), 1)
+    return 1 if x == 1 else 1 - 2 ** (-10 * x)
+
+def snap(x):                           # M6: 거의 선형으로 가다가 끝에서 급정지
+    x = min(max(x, 0), 1)
+    return x if x &lt; 0.85 else 0.85 + 0.15 * (1 - (1 - (x - 0.85) / 0.15) ** 3)
+
+def defocus(sprite, p, max_r=8):       # (3) 등장 흐림 → 선명 (p: 0~1 진행도)
+    r = max_r * (1 - p)
+    return sprite.filter(ImageFilter.GaussianBlur(r)) if r &gt; 0.3 else sprite
+
+def motion_blur(render_at, t, shutter=1/24, n=6):
+    &quot;&quot;&quot;(3) 빠른 이동 모션 블러: 셔터 시간 동안 n장을 렌더해 평균 (render_at(t) -&gt; RGB Image).&quot;&quot;&quot;
+    frames = [render_at(t - shutter * i / n) for i in range(n)]
+    acc = frames[0]
+    for i, f in enumerate(frames[1:], 2):
+        acc = Image.blend(acc, f, 1 / i)
+    return acc
+
+def words_visible(text, t, start, per_word=0.2):   # M2: 단어 단위 타이핑
+    words = text.split()
+    k = max(0, min(len(words), int((t - start) / per_word) + 1))
+    return &quot; &quot;.join(words[:k])
+
+def draw_hand_ellipse(draw, box, p, color=(220, 30, 30), width=6, overshoot=0.15):
+    &quot;&quot;&quot;M3: 손그림 타원 그리기. p=0~1 진행도, 끝점이 시작점을 지나쳐 튀어나오게 그린다.&quot;&quot;&quot;
+    x0, y0, x1, y1 = box
+    cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0) / 2, (y1 - y0) / 2
+    total = 2 * math.pi * (1 + overshoot)
+    pts = []
+    for i in range(int(120 * p) + 1):
+        a = -2.6 + total * (i / 120)
+        wob = 1 + 0.04 * math.sin(a * 3)            # 손떨림
+        pts.append((cx + rx * wob * math.cos(a), cy + ry * wob * math.sin(a) - 6 * (a / total)))
+    if len(pts) &gt; 1:
+        draw.line(pts, fill=color, width=width, joint=&quot;curve&quot;)
+</code></pre>
+<p><strong>적용 순서 예시 (한 섹션, 약 3.5초)</strong>
+1. <code>t=0.00</code> 컷. 빈 배경만 보인다.
+2. <code>t=0.25</code> 메인 사진을 Whip-In(<code>expo_out</code>, 0.3초, 모션 블러와 <code>defocus</code>)
+3. <code>t=0.55</code> 제목을 단어 단위 타이핑(<code>words_visible</code>, 단어당 0.2초)
+4. 제목이 끝나면 <code>+0.15초</code> 뒤 핵심 단어에 빨간 타원(0.5초), 이어서 화살표(0.3초)
+5. <code>t≈1.6~3.3</code> 정지(그레인만 움직임)
+6. 다음 섹션으로 <strong>하드컷</strong>, 또는 사진이 있으면 <strong>Zoom-Through</strong>(M5)로 연결
+7. 전체 렌더링 시 <code>step_time()</code>으로 12fps 스텝을 적용</p>
+<hr />
+<h2>7. 우리 영상(자동차 변천사)에 적용할 때의 제안</h2>
+<table>
+<thead>
+<tr>
+<th>현재 방식</th>
+<th>샘플 스타일에 맞춘 대안</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>연도 숫자 카운트업</td>
+<td>유지하되 12fps 스텝과 흐림에서 선명으로 등장을 추가</td>
+</tr>
+<tr>
+<td>제목 형광펜 스와이프</td>
+<td><strong>빨간 손그림 타원이나 밑줄</strong>로 교체(M3). 또는 형광펜은 유지하고 화살표를 추가</td>
+</tr>
+<tr>
+<td>요소 슬라이드 인·아웃</td>
+<td>Whip-In(모션 블러와 Expo Out)으로 등장시키고, 퇴장 애니메이션 없이 <strong>하드컷</strong></td>
+</tr>
+<tr>
+<td>장면 전환(종이 와이프 등)</td>
+<td>사진이 이어지는 구간은 <strong>Zoom-Through 매치컷</strong>(M5). 예: 1908 모델 T 사진으로 줌인한 뒤 1950년대 사진에서 줌아웃</td>
+</tr>
+<tr>
+<td>엔딩</td>
+<td>마지막 문구에 빨간 타원을 그린 뒤 <strong>스냅 줌 푸시인</strong>(M6)하고 2초 정지</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>참고: 이 문서는 모션 기법(타이밍, 곡선, 연출 순서)만 정리한 것입니다. 샘플 영상의 이미지, 문구, 템플릿 자체를 재사용하지 않도록 주의하세요.</p>
+</blockquote></main></body></html>

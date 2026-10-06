@@ -1,0 +1,63 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>3주차 박스오피스 일별 코랩</title><link rel="stylesheet" href="../assets/doc.css"></head><body><main class="doc"><p class="meta">Google Colab에서 열려면 아래 [원본 내려받기] 후 colab.research.google.com → 업로드</p>
+<section class="nbmd"><h1>KOBIS 일일 박스오피스 순위 가져오기 (Google Colab)</h1>
+<p><strong>목표</strong>: 영화진흥위원회(KOBIS) API로 어제 날짜의 일일 박스오피스 TOP10을 받아와 CSV로 저장합니다.</p>
+<h2>실습 흐름</h2>
+<ol>
+<li>설정 + API 호출 + 결과 출력 + CSV 저장까지 한 셀에서 진행</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>에러가 나면 셀을 하나씩 다시 실행하지 말고, 메뉴에서 "런타임 → 모두 실행(Run all)"을 눌러 처음부터 다시 실행하세요.</strong>
+(중간 셀만 다시 실행하면 이전 실행 결과가 남아있어 오류 원인 파악이 더 어려워집니다.)</p>
+</blockquote>
+<p>이 실습은 그래프를 그리지 않아서 한글 폰트 설치 셀이 필요 없습니다.</p></section>
+<section class="nbmd"><h2>셀 1. 설정 + 데이터 수집 + 저장</h2></section>
+<section class="nbcode"><div class="code"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="c1"># 1) 여기에 발급받은 키를 넣으세요</span>
+<span class="n">KOBIS_KEY</span> <span class="o">=</span> <span class="s2">"여기에_발급받은_인증키_입력"</span>
+
+<span class="c1"># 2) 조회할 날짜 (직접 지정하려면 "20260814"처럼 문자열로)</span>
+<span class="n">TARGET_DATE</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># 3) API 요청 주소 만들기</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">"http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json"</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"key"</span><span class="p">:</span> <span class="n">KOBIS_KEY</span><span class="p">,</span> <span class="s2">"targetDt"</span><span class="p">:</span> <span class="n">TARGET_DATE</span><span class="p">}</span>
+
+<span class="c1"># 4) 요청 보내고 결과 받기</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+<span class="c1"># 5) 필요한 부분만 꺼내기</span>
+<span class="n">box_office_list</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"boxOfficeResult"</span><span class="p">][</span><span class="s2">"dailyBoxOfficeList"</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"=== </span><span class="si">{</span><span class="n">TARGET_DATE</span><span class="si">}</span><span class="s2"> 일일 박스오피스 TOP 10 ===</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">movie</span> <span class="ow">in</span> <span class="n">box_office_list</span><span class="p">:</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"rank"</span><span class="p">]</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"movieNm"</span><span class="p">]</span>
+    <span class="n">audience_today</span> <span class="o">=</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"audiCnt"</span><span class="p">]</span>
+    <span class="n">audience_total</span> <span class="o">=</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"audiAcc"</span><span class="p">]</span>
+    <span class="n">sales_today</span> <span class="o">=</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"salesAmt"</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">위 | </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   당일 관객수: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">audience_today</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">명"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   누적 관객수: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">audience_total</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">명"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   당일 매출액: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">sales_today</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">원"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"-"</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+<span class="c1"># 6) CSV로 저장 (코랩 세션의 /content/ 폴더에 저장됩니다)</span>
+<span class="n">csv_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"boxoffice_</span><span class="si">{</span><span class="n">TARGET_DATE</span><span class="si">}</span><span class="s2">.csv"</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s2">"순위"</span><span class="p">,</span> <span class="s2">"영화제목"</span><span class="p">,</span> <span class="s2">"당일관객수"</span><span class="p">,</span> <span class="s2">"누적관객수"</span><span class="p">,</span> <span class="s2">"당일매출액"</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">movie</span> <span class="ow">in</span> <span class="n">box_office_list</span><span class="p">:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">movie</span><span class="p">[</span><span class="s2">"rank"</span><span class="p">],</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"movieNm"</span><span class="p">],</span>
+                          <span class="n">movie</span><span class="p">[</span><span class="s2">"audiCnt"</span><span class="p">],</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"audiAcc"</span><span class="p">],</span> <span class="n">movie</span><span class="p">[</span><span class="s2">"salesAmt"</span><span class="p">]])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">저장 완료: </span><span class="si">{</span><span class="n">csv_filename</span><span class="si">}</span><span class="s2"> (왼쪽 폴더 아이콘 -&gt; 파일 목록에서 다운로드 가능)"</span><span class="p">)</span>
+
+<span class="c1"># from google.colab import files</span>
+<span class="c1"># files.download(csv_filename)  # 바로 내 컴퓨터로 받고 싶으면 주석 해제</span>
+</pre></div>
+</section></main></body></html>
